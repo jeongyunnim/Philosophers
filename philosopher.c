@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/21 19:14:15 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/21 19:58:24 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,11 @@ int	parse_arguments(char *argv[], t_philo_conditons *conditions)
 
 void	*philo_init(void *c)
 {
+	static int	fork_R;
+	static int	fork_L;
+
 	printf("philospher%s 등장\n", (char *)c);
-	fork++;
+	
 	return (NULL);
 }
 
@@ -95,7 +98,6 @@ int	main(int argc, char *argv[])
 	pthread_t			philo;
 	t_philo_conditons	conditions;
 	pthread_attr_t		attr;
-	int					fork;
 
 	if (argc != 5 && argc != 6)
 	{
@@ -106,7 +108,6 @@ int	main(int argc, char *argv[])
 	{
 		return (ERROR);
 	}
-	fork = 0;
 	pthread_attr_init(&attr);
 	if (pthread_create(&philo, NULL, philo_init, "1") != 0)
 		return (ERROR);
