@@ -5,6 +5,8 @@
 		"stdio.h": "c",
 		"unistd.h": "c",
 		"pthread.h": "c",
-		"_types.h": "c"
+		"_types.h": "c",
+		"_pthread_attr_t.h": "c",
+		"_pthread_types.h": "c"
 	}
 }

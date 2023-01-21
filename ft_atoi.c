@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 21:09:55 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/20 21:10:17 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/21 16:56:25 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,13 @@ static int	my_isspace(char c)
 	if (c == '\v' || c == '\f' || c == '\r')
 		return (1);
 	return (0);
+}
+
+static int	my_isdigit(char c)
+{
+	if ('0' <= c && c <= '9')
+		return (0);
+	return (1);
 }
 
 int	ft_atoi(const char *str)
@@ -39,7 +46,7 @@ int	ft_atoi(const char *str)
 	}
 	else if (str[i] == '+')
 		i++;
-	while (str[i] != '\0' && ft_isdigit(str[i]) != 0)
+	while (str[i] != '\0' && my_isdigit(str[i]) != 0)
 	{
 		num = num * 10 + str[i++] - '0';
 		if (sign == 1 && num > 2147483647)
