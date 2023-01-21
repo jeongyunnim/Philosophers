@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/21 17:08:06 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/21 19:14:15 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,11 @@ int	init_conditions(char *argv[], t_philo_conditons *conditions)
 		option = 1;
 		conditions->must_eat = ft_atoi(argv[5]);
 	}
-	printf("왜?");
 	if (conditions->philo_number <= 1 || conditions->time_to_die <= 0 || \
 		conditions->time_to_eat <= 0 || conditions->time_to_sleep <= 0)
+	{
 		return (ERROR);
+	}
 	if (option == 1)
 	{
 		if (conditions->must_eat <= 0)
@@ -82,9 +83,10 @@ int	parse_arguments(char *argv[], t_philo_conditons *conditions)
 	return (0);
 }
 
-void	*philo_init(void *i)
+void	*philo_init(void *c)
 {
-	printf("philospher%d 등장\n", (int)i);
+	printf("philospher%s 등장\n", (char *)c);
+	fork++;
 	return (NULL);
 }
 
@@ -93,17 +95,21 @@ int	main(int argc, char *argv[])
 	pthread_t			philo;
 	t_philo_conditons	conditions;
 	pthread_attr_t		attr;
-	int					i;
+	int					fork;
 
 	if (argc != 5 && argc != 6)
 	{
 		write(2, "Error\nARGUMENT COUNT ERROR\n", 27);
 		return (ERROR);
 	}
-	parse_arguments(argv, &conditions);
-	pthread_attr_init(&attr);
-	i = 1;
-	if (pthread_create(&philo, NULL, philo_init, &index) != 0)
+	if (parse_arguments(argv, &conditions) != 0)
+	{
 		return (ERROR);
+	}
+	fork = 0;
+	pthread_attr_init(&attr);
+	if (pthread_create(&philo, NULL, philo_init, "1") != 0)
+		return (ERROR);
+	pthread_join(phlio, NULL);
 	return (0);
 }

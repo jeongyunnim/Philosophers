@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 21:09:55 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/21 16:56:25 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/21 18:53:42 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ static int	my_isspace(char c)
 static int	my_isdigit(char c)
 {
 	if ('0' <= c && c <= '9')
-		return (0);
-	return (1);
+		return (1);
+	return (0);
 }
 
 int	ft_atoi(const char *str)
