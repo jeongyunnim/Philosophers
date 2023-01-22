@@ -29,6 +29,12 @@ typedef struct s_philo_conditions
 	int		must_eat;
 }			t_philo_conditions;
 
+typedef struct  s_lock
+{
+    int *fork;
+    int total;
+}               t_lock;
+
 int		ft_atoi(const char *str);
 
 #endif

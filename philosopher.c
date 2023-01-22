@@ -83,35 +83,43 @@ int	parse_arguments(char *argv[], t_philo_conditions *conditions)
 	return (0);
 }
 
-void	*philosopher_do_something(void *i)
+void	*philosopher_do_something(void *fork)
 {
-	static int cnt;
+	static int  cnt;
+    t_lock      *lock;
 
     cnt++;
-	printf("Hi, i'm philosopher %d! I have %p\n", cnt, i);
+    lock = (t_lock *)fork;
+    if (cnt == 1)
+    {
+        lock->fork[0] = cnt;
+        lock->fork[lock->total - 1] = cnt;
+    }
+    else
+    {
+        lock->fork[cnt - 2] = cnt;
+        lock->fork[cnt - 1] = cnt;
+    }
+	printf("Hi, i'm philosopher %d! I have %p\n", cnt, fork);
 	return (NULL);
 }
 
 int	generate_philo(t_philo_conditions conditions, pthread_t **philo)
 {
     pthread_t   philosophers[conditions.philo_number];
-	int	i;
+    t_lock      mutexes;
+    int         fork[conditions.philo_number];
+	int	        i;
 
 	i = 0;
-//	philosophers = (pthread_t *)malloc(sizeof(pthread_t) * conditions.philo_number);
-//	if (*philo == NULL)
-//	{
-//		write(2, "Error\nALLOCATE FAILURE\n", 24);
-//		exit(EXIT_FAILURE);
-//	}
-//	else
-//	{
-//		printf("philo's size is %lu\n", sizeof(*philo));
-//	}
     *philo = philosophers;
+    memset(fork, 0, sizeof(fork));
+    memset(&mutexes, 0, sizeof(mutexes));
+    mutexes.fork = fork;
+    mutexes.total = conditions.philo_number;
 	while (i < conditions.philo_number)
 	{
-		pthread_create(&philosophers[i], NULL, philosopher_do_something, &i);
+		pthread_create(&philosophers[i], NULL, philosopher_do_something, &mutexes);
 		i++;
 	}
     i = 0;
