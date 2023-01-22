@@ -41,7 +41,7 @@ int	argument_num_check(char *argv[])
 	return (0);
 }
 
-int	init_conditions(char *argv[], t_philo_conditons *conditions)
+int	init_conditions(char *argv[], t_philo_conditions *conditions)
 {
 	char	option;
 
@@ -68,7 +68,7 @@ int	init_conditions(char *argv[], t_philo_conditons *conditions)
 	return (0);
 }
 
-int	parse_arguments(char *argv[], t_philo_conditons *conditions)
+int	parse_arguments(char *argv[], t_philo_conditions *conditions)
 {
 	if (argument_num_check(argv) != 0)
 	{
@@ -77,27 +77,56 @@ int	parse_arguments(char *argv[], t_philo_conditons *conditions)
 	}
 	if (init_conditions(argv, conditions) != 0)
 	{
-		write(1, "Error\nINVALID ALGUMENT\n", 23);
+		write(1, "Error\nINVALID ARGUMENT\n", 23);
 		return (ERROR);
 	}
 	return (0);
 }
 
-void	*philo_init(void *c)
+void	*philosopher_do_something(void *i)
 {
-	static int	fork_R;
-	static int	fork_L;
+	static int cnt;
 
-	printf("philospher%s 등장\n", (char *)c);
-	
+    cnt++;
+	printf("Hi, i'm philosopher %d! I have %p\n", cnt, i);
 	return (NULL);
+}
+
+int	generate_philo(t_philo_conditions conditions, pthread_t **philo)
+{
+    pthread_t   philosophers[conditions.philo_number];
+	int	i;
+
+	i = 0;
+//	philosophers = (pthread_t *)malloc(sizeof(pthread_t) * conditions.philo_number);
+//	if (*philo == NULL)
+//	{
+//		write(2, "Error\nALLOCATE FAILURE\n", 24);
+//		exit(EXIT_FAILURE);
+//	}
+//	else
+//	{
+//		printf("philo's size is %lu\n", sizeof(*philo));
+//	}
+    *philo = philosophers;
+	while (i < conditions.philo_number)
+	{
+		pthread_create(&philosophers[i], NULL, philosopher_do_something, &i);
+		i++;
+	}
+    i = 0;
+    while (i < conditions.philo_number)
+    {
+        pthread_join(philosophers[i], NULL);
+        i++;
+    }
+	return (0);
 }
 
 int	main(int argc, char *argv[])
 {
-	pthread_t			philo;
-	t_philo_conditons	conditions;
-	pthread_attr_t		attr;
+	pthread_t	*philos;
+	t_philo_conditions	conditions;
 
 	if (argc != 5 && argc != 6)
 	{
@@ -108,9 +137,6 @@ int	main(int argc, char *argv[])
 	{
 		return (ERROR);
 	}
-	pthread_attr_init(&attr);
-	if (pthread_create(&philo, NULL, philo_init, "1") != 0)
-		return (ERROR);
-	pthread_join(phlio, NULL);
+	generate_philo(conditions, &philos);
 	return (0);
 }

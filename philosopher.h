@@ -20,14 +20,14 @@
 # include <string.h>
 # define ERROR -1
 
-typedef struct s_philo_conditons
+typedef struct s_philo_conditions
 {
 	int		philo_number;
 	int		time_to_die;
 	int		time_to_sleep;
 	int		time_to_eat;
 	int		must_eat;
-}			t_philo_conditons;
+}			t_philo_conditions;
 
 int		ft_atoi(const char *str);
 
