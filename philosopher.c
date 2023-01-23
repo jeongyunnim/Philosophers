@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/23 20:56:29 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/23 21:23:24 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ int	init_conditions(char *argv[], t_philo_conditions *conditions)
 	char	option;
 
 	option = 0;
-	memset(conditions, 0, sizeof(conditions));
+	memset(conditions, 0, sizeof(*conditions));
 	conditions->philo_number = ft_atoi(argv[1]);
 	conditions->time_to_die = ft_atoi(argv[2]);
 	conditions->time_to_eat = ft_atoi(argv[3]);
@@ -112,6 +112,7 @@ void	eating_spagetti(t_lock *lock, int cnt)
 	pthread_mutex_lock(&lock->fork[right_fork]);
 	printf("%dth philosopher picked up right fork\n", cnt);
 	printf("%dth philosopher is eating\n", cnt);
+	usleep(lock->conditions->time_to_eat);
 	pthread_mutex_unlock(&lock->fork[left_fork]);
 	pthread_mutex_unlock(&lock->fork[right_fork]);
 }
@@ -124,8 +125,8 @@ void	sleeping(t_lock *lock, int cnt)
 
 void	*philosopher_do_something(void *fork)
 {
-	static int  cnt;
-	t_lock      *lock;
+	static int	cnt;
+	t_lock		*lock;
 
 	cnt++;
 	lock = (t_lock *)fork;
