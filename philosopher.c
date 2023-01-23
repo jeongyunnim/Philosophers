@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/21 19:58:24 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/23 18:29:53 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,14 +97,8 @@ void    check_his_hands(t_lock *lock, int cnt)
     }
 }
 
-void	*philosopher_do_something(void *fork)
-{
-	static int  cnt;
-    t_lock      *lock;
-
-    cnt++;
-    lock = (t_lock *)fork;
-    if (if he can pick up the right fork)
+/*
+	if (if he can pick up the right fork)
         lock->fork[cnt - 1] = cnt;
     if (if he can pick up the left fork)
     {
@@ -113,35 +107,67 @@ void	*philosopher_do_something(void *fork)
         else
             lock->fork[lock->total - 1] = cnt;
     }
-    check_his_hands(lock, cnt);
+*/
+
+int	pick_up_fork(t_lock *lock, int cnt)
+{
+	check_his_hands(lock, cnt);
+	
+}
+
+void	eat(t_lock *lock, int cnt)
+{
+	pick_up_fork(lock, cnt);
+
+}
+
+void	*philosopher_do_something(void *fork)
+{
+	static int  cnt;
+	t_lock      *lock;
+
+	cnt++;
+	lock = (t_lock *)fork;
+	while (1)
+	{
+		eat(lock, cnt);
+		sleep(lock, cnt);
+		think(lock, cnt);
+	}
 	printf("Hi, i'm philosopher %d! I have %p\n", cnt, lock);
 	return (NULL);
 }
 
 int	generate_philo(t_philo_conditions conditions, pthread_t **philo)
 {
-    pthread_t   philosophers[conditions.philo_number];
-    t_lock      mutexes;
-    int         fork[conditions.philo_number];
-	int	        i;
+	pthread_t		philosophers[conditions.philo_number];
+	t_lock			locks;
+	pthread_mutex_t	fork[conditions.philo_number];
+	int				i;
 
-	i = 0;
     *philo = philosophers;
     memset(fork, 0, sizeof(fork));
-    memset(&mutexes, 0, sizeof(mutexes));
-    mutexes.fork = fork;
-    mutexes.total = conditions.philo_number;
+    memset(&locks, 0, sizeof(locks));
+    locks.total = conditions.philo_number;
+	i = 0;
+	while (i < conditions.philo_number)
+    {
+		pthread_mutex_init(&fork[i], NULL);
+		i++;
+    }
+    locks.fork = fork;
+    i = 0;
 	while (i < conditions.philo_number)
 	{
-		pthread_create(&philosophers[i], NULL, philosopher_do_something, &mutexes);
+		pthread_create(&philosophers[i], NULL, philosopher_do_something, &locks);
 		i++;
 	}
-    i = 0;
-    while (i < conditions.philo_number)
-    {
-        pthread_join(philosophers[i], NULL);
-        i++;
-    }
+	i = 0;
+	while (i < conditions.philo_number)
+	{
+		pthread_join(philosophers[i], NULL);
+		i++;
+	}
 	return (0);
 }
 
