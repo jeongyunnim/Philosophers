@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/23 18:29:53 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/23 20:56:29 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ int	init_conditions(char *argv[], t_philo_conditions *conditions)
 	char	option;
 
 	option = 0;
+	memset(conditions, 0, sizeof(conditions));
 	conditions->philo_number = ft_atoi(argv[1]);
 	conditions->time_to_die = ft_atoi(argv[2]);
 	conditions->time_to_eat = ft_atoi(argv[3]);
@@ -83,20 +84,6 @@ int	parse_arguments(char *argv[], t_philo_conditions *conditions)
 	return (0);
 }
 
-void    check_his_hands(t_lock *lock, int cnt)
-{
-    if (cnt != 1)
-    {
-        if (lock->fork[cnt - 2] == cnt && lock->fork[cnt - 1] == cnt);
-            eat(cnt);
-    }
-    else
-    {
-        if (lock->fork[lock->total - 1] == cnt && lock->fork[cnt - 1] == cnt);
-            eat(cnt);
-    }
-}
-
 /*
 	if (if he can pick up the right fork)
         lock->fork[cnt - 1] = cnt;
@@ -109,16 +96,30 @@ void    check_his_hands(t_lock *lock, int cnt)
     }
 */
 
-int	pick_up_fork(t_lock *lock, int cnt)
+void	eating_spagetti(t_lock *lock, int cnt)
 {
-	check_his_hands(lock, cnt);
-	
+	int	left_fork;
+	int	right_fork;
+
+	left_fork = cnt - 1;
+	if (cnt == 1)
+		right_fork = lock->conditions->philo_number - 1;
+	else
+		right_fork = cnt - 2;
+	printf("%dth philosopher is thinking(actually wating...)\n", cnt);
+	pthread_mutex_lock(&lock->fork[left_fork]);
+	printf("%dth philosopher picked up left fork\n", cnt);
+	pthread_mutex_lock(&lock->fork[right_fork]);
+	printf("%dth philosopher picked up right fork\n", cnt);
+	printf("%dth philosopher is eating\n", cnt);
+	pthread_mutex_unlock(&lock->fork[left_fork]);
+	pthread_mutex_unlock(&lock->fork[right_fork]);
 }
 
-void	eat(t_lock *lock, int cnt)
+void	sleeping(t_lock *lock, int cnt)
 {
-	pick_up_fork(lock, cnt);
-
+	printf("%dth philosopher is sleeping\n", cnt);
+	usleep(lock->conditions->time_to_sleep);
 }
 
 void	*philosopher_do_something(void *fork)
@@ -128,42 +129,42 @@ void	*philosopher_do_something(void *fork)
 
 	cnt++;
 	lock = (t_lock *)fork;
+	printf("Hi, i'm philosopher %d! I have %p\n", cnt, lock);
 	while (1)
 	{
-		eat(lock, cnt);
-		sleep(lock, cnt);
-		think(lock, cnt);
+		eating_spagetti(lock, cnt);
+		sleeping(lock, cnt);
 	}
-	printf("Hi, i'm philosopher %d! I have %p\n", cnt, lock);
 	return (NULL);
 }
 
-int	generate_philo(t_philo_conditions conditions, pthread_t **philo)
+int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 {
-	pthread_t		philosophers[conditions.philo_number];
+	pthread_t		philosophers[conditions->philo_number];
 	t_lock			locks;
-	pthread_mutex_t	fork[conditions.philo_number];
+	pthread_mutex_t	fork[conditions->philo_number];
 	int				i;
 
-    *philo = philosophers;
-    memset(fork, 0, sizeof(fork));
-    memset(&locks, 0, sizeof(locks));
-    locks.total = conditions.philo_number;
+	*philo = philosophers;
+	memset(fork, 0, sizeof(fork));
+	memset(&locks, 0, sizeof(locks));
+	locks.conditions = conditions;
+
 	i = 0;
-	while (i < conditions.philo_number)
-    {
+	while (i < conditions->philo_number)
+	{
 		pthread_mutex_init(&fork[i], NULL);
 		i++;
-    }
-    locks.fork = fork;
-    i = 0;
-	while (i < conditions.philo_number)
+	}
+	locks.fork = fork;
+	i = 0;
+	while (i < conditions->philo_number)
 	{
 		pthread_create(&philosophers[i], NULL, philosopher_do_something, &locks);
 		i++;
 	}
 	i = 0;
-	while (i < conditions.philo_number)
+	while (i < conditions->philo_number)
 	{
 		pthread_join(philosophers[i], NULL);
 		i++;
@@ -185,6 +186,6 @@ int	main(int argc, char *argv[])
 	{
 		return (ERROR);
 	}
-	generate_philo(conditions, &philos);
+	generate_philo(&conditions, &philos);
 	return (0);
 }

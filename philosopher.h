@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/23 17:12:49 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/23 20:52:32 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <sys/time.h>
 # define ERROR -1
 
 typedef struct s_philo_conditions
@@ -31,8 +32,8 @@ typedef struct s_philo_conditions
 
 typedef struct  s_lock
 {
-    pthread_mutex_t *fork;
-    int 			total;
+	t_philo_conditions	*conditions;
+    pthread_mutex_t		*fork;
 }               t_lock;
 
 int		ft_atoi(const char *str);
