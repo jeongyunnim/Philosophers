@@ -83,6 +83,20 @@ int	parse_arguments(char *argv[], t_philo_conditions *conditions)
 	return (0);
 }
 
+void    check_his_hands(t_lock *lock, int cnt)
+{
+    if (cnt != 1)
+    {
+        if (lock->fork[cnt - 2] == cnt && lock->fork[cnt - 1] == cnt);
+            eat(cnt);
+    }
+    else
+    {
+        if (lock->fork[lock->total - 1] == cnt && lock->fork[cnt - 1] == cnt);
+            eat(cnt);
+    }
+}
+
 void	*philosopher_do_something(void *fork)
 {
 	static int  cnt;
@@ -90,17 +104,17 @@ void	*philosopher_do_something(void *fork)
 
     cnt++;
     lock = (t_lock *)fork;
-    if (cnt == 1)
-    {
-        lock->fork[0] = cnt;
-        lock->fork[lock->total - 1] = cnt;
-    }
-    else
-    {
-        lock->fork[cnt - 2] = cnt;
+    if (if he can pick up the right fork)
         lock->fork[cnt - 1] = cnt;
+    if (if he can pick up the left fork)
+    {
+        if (cnt != 1)
+            lock->fork[cnt - 2] = cnt;
+        else
+            lock->fork[lock->total - 1] = cnt;
     }
-	printf("Hi, i'm philosopher %d! I have %p\n", cnt, fork);
+    check_his_hands(lock, cnt);
+	printf("Hi, i'm philosopher %d! I have %p\n", cnt, lock);
 	return (NULL);
 }
 
