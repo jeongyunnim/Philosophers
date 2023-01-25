@@ -96,21 +96,36 @@ int	parse_arguments(char *argv[], t_philo_conditions *conditions)
     }
 */
 
+void	pick_up_forks(t_lock *lock, int cnt, int left_fork, int right_fork)
+{
+	if (cnt % 2 == 1)
+	{
+		pthread_mutex_lock(&lock->fork[left_fork]);
+		printf("%dth philosopher picked up left fork\n", cnt);
+		pthread_mutex_lock(&lock->fork[right_fork]);
+		printf("%dth philosopher picked up right fork\n", cnt);
+	}
+	else
+	{
+		pthread_mutex_lock(&lock->fork[right_fork]);
+		printf("%dth philosopher picked up right fork\n", cnt);
+		pthread_mutex_lock(&lock->fork[left_fork]);
+		printf("%dth philosopher picked up left fork\n", cnt);
+	}	
+}
+
 void	eating_spagetti(t_lock *lock, int cnt)
 {
 	int	left_fork;
 	int	right_fork;
 
-	left_fork = cnt - 1;
+	right_fork = cnt - 2;
 	if (cnt == 1)
-		right_fork = lock->conditions->philo_number - 1;
+		left_fork = lock->conditions->philo_number - 1;
 	else
-		right_fork = cnt - 2;
-	printf("%dth philosopher is thinking(actually wating...)\n", cnt);
-	pthread_mutex_lock(&lock->fork[left_fork]);
-	printf("%dth philosopher picked up left fork\n", cnt);
-	pthread_mutex_lock(&lock->fork[right_fork]);
-	printf("%dth philosopher picked up right fork\n", cnt);
+		left_fork = cnt - 1;
+	printf("%dth philosopher is thinking(actually waiting...)\n", cnt);
+	pick_up_forks(lock, cnt, left_fork, right_fork);
 	printf("%dth philosopher is eating\n", cnt);
 	usleep(lock->conditions->time_to_eat);
 	pthread_mutex_unlock(&lock->fork[left_fork]);
@@ -130,7 +145,7 @@ void	*philosopher_do_something(void *fork)
 
 	cnt++;
 	lock = (t_lock *)fork;
-	printf("Hi, i'm philosopher %d! I have %p\n", cnt, lock);
+	printf("Hi, i'm philosopher %d!\n", cnt);
 	while (1)
 	{
 		eating_spagetti(lock, cnt);
@@ -142,8 +157,8 @@ void	*philosopher_do_something(void *fork)
 int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 {
 	pthread_t		philosophers[conditions->philo_number];
-	t_lock			locks;
 	pthread_mutex_t	fork[conditions->philo_number];
+	t_lock			locks;
 	int				i;
 
 	*philo = philosophers;
