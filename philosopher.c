@@ -84,18 +84,6 @@ int	parse_arguments(char *argv[], t_philo_conditions *conditions)
 	return (0);
 }
 
-/*
-	if (if he can pick up the right fork)
-        lock->fork[cnt - 1] = cnt;
-    if (if he can pick up the left fork)
-    {
-        if (cnt != 1)
-            lock->fork[cnt - 2] = cnt;
-        else
-            lock->fork[lock->total - 1] = cnt;
-    }
-*/
-
 void	pick_up_forks(t_lock *lock, int cnt, int left_fork, int right_fork)
 {
 	if (cnt % 2 == 1)
@@ -114,42 +102,44 @@ void	pick_up_forks(t_lock *lock, int cnt, int left_fork, int right_fork)
 	}	
 }
 
-void	eating_spagetti(t_lock *lock, int cnt)
+void	eating_spagetti(t_lock *lock, int num)
 {
 	int	left_fork;
 	int	right_fork;
 
-	right_fork = cnt - 2;
-	if (cnt == 1)
+	right_fork = num - 2;
+	if (num == 1)
 		left_fork = lock->conditions->philo_number - 1;
 	else
-		left_fork = cnt - 1;
-	printf("%dth philosopher is thinking(actually waiting...)\n", cnt);
-	pick_up_forks(lock, cnt, left_fork, right_fork);
-	printf("%dth philosopher is eating\n", cnt);
+		left_fork = num - 1;
+	printf("%dth philosopher is thinking(actually waiting...)\n", num);
+	pick_up_forks(lock, num, left_fork, right_fork);
+	printf("%dth philosopher is eating\n", num);
 	usleep(lock->conditions->time_to_eat);
 	pthread_mutex_unlock(&lock->fork[left_fork]);
 	pthread_mutex_unlock(&lock->fork[right_fork]);
 }
 
-void	sleeping(t_lock *lock, int cnt)
+void	sleeping(t_lock *lock, int num)
 {
-	printf("%dth philosopher is sleeping\n", cnt);
+	printf("%dth philosopher is sleeping\n", num);
 	usleep(lock->conditions->time_to_sleep);
 }
 
 void	*philosopher_do_something(void *fork)
 {
 	static int	cnt;
+    int         num;
 	t_lock		*lock;
 
 	cnt++;
 	lock = (t_lock *)fork;
-	printf("Hi, i'm philosopher %d!\n", cnt);
+    num = cnt;
+	printf("Hi, i'm philosopher %d!\n", num);
 	while (1)
 	{
-		eating_spagetti(lock, cnt);
-		sleeping(lock, cnt);
+		eating_spagetti(lock, num);
+		sleeping(lock, num);
 	}
 	return (NULL);
 }
@@ -177,12 +167,7 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 	while (i < conditions->philo_number)
 	{
 		pthread_create(&philosophers[i], NULL, philosopher_do_something, &locks);
-		i++;
-	}
-	i = 0;
-	while (i < conditions->philo_number)
-	{
-		pthread_join(philosophers[i], NULL);
+        pthread_detach(philosophers[i]);
 		i++;
 	}
 	return (0);
@@ -192,6 +177,7 @@ int	main(int argc, char *argv[])
 {
 	pthread_t	*philos;
 	t_philo_conditions	conditions;
+
 
 	if (argc != 5 && argc != 6)
 	{
