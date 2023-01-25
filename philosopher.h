@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/23 20:52:32 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/25 19:31:24 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ typedef struct  s_lock
 {
 	t_philo_conditions	*conditions;
     pthread_mutex_t		*fork;
+	pthread_mutex_t		index_mutex;
+	int					index;
 }               t_lock;
 
 int		ft_atoi(const char *str);

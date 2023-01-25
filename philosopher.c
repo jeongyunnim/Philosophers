@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/23 21:39:22 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/25 20:04:07 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,44 +102,44 @@ void	pick_up_forks(t_lock *lock, int cnt, int left_fork, int right_fork)
 	}	
 }
 
-void	eating_spagetti(t_lock *lock, int num)
+void	eating_spagetti(t_lock *lock, int num, int left_fork, int right_fork)
 {
-	int	left_fork;
-	int	right_fork;
+	printf("philosopher %d is thinking\n", num);
+	pick_up_forks(lock, num, left_fork, right_fork);
+	printf("philosopher %d is eating\n", num);
+	printf("%dth philosopher put a left fork\n", num);
+	pthread_mutex_unlock(&lock->fork[left_fork]);
+	printf("%dth philosopher put a left fork\n", num);
+	pthread_mutex_unlock(&lock->fork[right_fork]);
+	usleep(lock->conditions->time_to_eat);
+}
 
+void	sleeping(t_lock *lock, int num)
+{
+	printf("philosopher %d is sleeping %d\n", num, lock->conditions->time_to_sleep);
+	usleep(lock->conditions->time_to_sleep);
+	printf("왜 안 일어나?\n");
+}
+
+void	*philosopher_do_something(void *fork)
+{
+	t_lock	*lock;
+	int		num;
+	int		left_fork;
+	int		right_fork;
+
+	lock = (t_lock *)fork;
+	num = lock->index;
 	right_fork = num - 2;
 	if (num == 1)
 		left_fork = lock->conditions->philo_number - 1;
 	else
 		left_fork = num - 1;
-	printf("%dth philosopher is thinking(actually waiting...)\n", num);
-	pick_up_forks(lock, num, left_fork, right_fork);
-	printf("%dth philosopher is eating\n", num);
-	usleep(lock->conditions->time_to_eat);
-	pthread_mutex_unlock(&lock->fork[left_fork]);
-	pthread_mutex_unlock(&lock->fork[right_fork]);
-}
-
-void	sleeping(t_lock *lock, int num)
-{
-	printf("%dth philosopher is sleeping\n", num);
-	usleep(lock->conditions->time_to_sleep);
-}
-
-void	*philosopher_do_something(void *fork)
-{
-	static int	cnt;
-    int         num;
-	t_lock		*lock;
-
-	cnt++;
-	lock = (t_lock *)fork;
-    num = cnt;
 	printf("Hi, i'm philosopher %d!\n", num);
 	while (1)
 	{
-		eating_spagetti(lock, num);
-		sleeping(lock, num);
+		eating_spagetti(lock, num, left_fork, right_fork);
+ 		sleeping(lock, num);
 	}
 	return (NULL);
 }
@@ -155,7 +155,7 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 	memset(fork, 0, sizeof(fork));
 	memset(&locks, 0, sizeof(locks));
 	locks.conditions = conditions;
-
+	pthread_mutex_init(&locks.index_mutex, NULL);
 	i = 0;
 	while (i < conditions->philo_number)
 	{
@@ -166,8 +166,14 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 	i = 0;
 	while (i < conditions->philo_number)
 	{
+		locks.index++;
 		pthread_create(&philosophers[i], NULL, philosopher_do_something, &locks);
-        pthread_detach(philosophers[i]);
+		//pthread_detach(philosophers[i]);
+		i++;
+	}
+	while (i < conditions->philo_number)
+	{
+		pthread_join(philosophers[i], NULL);
 		i++;
 	}
 	return (0);
