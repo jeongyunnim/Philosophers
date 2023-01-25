@@ -34,7 +34,9 @@ typedef struct  s_lock
 {
 	t_philo_conditions	*conditions;
     pthread_mutex_t		*fork;
-	pthread_mutex_t		index_mutex;
+	pthread_mutex_t		tv_mutex;
+    time_t              time_offset;
+    struct timeval      tv;
 	int					index;
 }               t_lock;
 

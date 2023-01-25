@@ -84,32 +84,35 @@ int	parse_arguments(char *argv[], t_philo_conditions *conditions)
 	return (0);
 }
 
-void	pick_up_forks(t_lock *lock, int cnt, int left_fork, int right_fork)
+void	pick_up_forks(t_lock *lock, int num, int left_fork, int right_fork)
 {
-	if (cnt % 2 == 1)
+	if (num % 2 == 1)
 	{
 		pthread_mutex_lock(&lock->fork[left_fork]);
-		printf("%dth philosopher picked up left fork\n", cnt);
+		printf("%dth philosopher picked up left fork\n", num);
 		pthread_mutex_lock(&lock->fork[right_fork]);
-		printf("%dth philosopher picked up right fork\n", cnt);
+		printf("%dth philosopher picked up right fork\n", num);
 	}
 	else
 	{
 		pthread_mutex_lock(&lock->fork[right_fork]);
-		printf("%dth philosopher picked up right fork\n", cnt);
+		printf("%dth philosopher picked up right fork\n", num);
 		pthread_mutex_lock(&lock->fork[left_fork]);
-		printf("%dth philosopher picked up left fork\n", cnt);
+		printf("%dth philosopher picked up left fork\n", num);
 	}	
 }
 
 void	eating_spagetti(t_lock *lock, int num, int left_fork, int right_fork)
 {
-	printf("philosopher %d is thinking\n", num);
+    gettimeofday(&lock->tv, NULL);
+	printf("%ld %d is thinking\n", lock->tv.tv_usec - lock->time_offset, num);
 	pick_up_forks(lock, num, left_fork, right_fork);
-	printf("philosopher %d is eating\n", num);
-	printf("%dth philosopher put a left fork\n", num);
+	printf("%ld %d is eating\n", lock->tv.tv_usec - lock->time_offset, num);
+    gettimeofday(&lock->tv, NULL);
+	printf("%ld %d put a left fork\n", lock->tv.tv_usec - lock->time_offset, num);
 	pthread_mutex_unlock(&lock->fork[left_fork]);
-	printf("%dth philosopher put a left fork\n", num);
+    gettimeofday(&lock->tv, NULL);
+	printf("%ld %d put a right fork\n", lock->tv.tv_usec - lock->time_offset, num);
 	pthread_mutex_unlock(&lock->fork[right_fork]);
 	usleep(lock->conditions->time_to_eat);
 }
@@ -118,7 +121,6 @@ void	sleeping(t_lock *lock, int num)
 {
 	printf("philosopher %d is sleeping %d\n", num, lock->conditions->time_to_sleep);
 	usleep(lock->conditions->time_to_sleep);
-	printf("왜 안 일어나?\n");
 }
 
 void	*philosopher_do_something(void *fork)
@@ -130,11 +132,11 @@ void	*philosopher_do_something(void *fork)
 
 	lock = (t_lock *)fork;
 	num = lock->index;
-	right_fork = num - 2;
+	right_fork = num - 1;
 	if (num == 1)
 		left_fork = lock->conditions->philo_number - 1;
 	else
-		left_fork = num - 1;
+		left_fork = num - 2;
 	printf("Hi, i'm philosopher %d!\n", num);
 	while (1)
 	{
@@ -155,8 +157,10 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 	memset(fork, 0, sizeof(fork));
 	memset(&locks, 0, sizeof(locks));
 	locks.conditions = conditions;
-	pthread_mutex_init(&locks.index_mutex, NULL);
+	pthread_mutex_init(&locks.tv_mutex, NULL);
 	i = 0;
+    gettimeofday(&locks.tv, NULL);
+    locks.time_offset = locks.tv.tv_usec;
 	while (i < conditions->philo_number)
 	{
 		pthread_mutex_init(&fork[i], NULL);
@@ -168,12 +172,7 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 	{
 		locks.index++;
 		pthread_create(&philosophers[i], NULL, philosopher_do_something, &locks);
-		//pthread_detach(philosophers[i]);
-		i++;
-	}
-	while (i < conditions->philo_number)
-	{
-		pthread_join(philosophers[i], NULL);
+		pthread_detach(philosophers[i]);
 		i++;
 	}
 	return (0);
@@ -181,9 +180,8 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 
 int	main(int argc, char *argv[])
 {
-	pthread_t	*philos;
-	t_philo_conditions	conditions;
-
+	pthread_t           *philos;
+	t_philo_conditions  conditions;
 
 	if (argc != 5 && argc != 6)
 	{
@@ -195,5 +193,8 @@ int	main(int argc, char *argv[])
 		return (ERROR);
 	}
 	generate_philo(&conditions, &philos);
+    while (1)
+    {}
+    printf("main() is ended\n");
 	return (0);
 }
