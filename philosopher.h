@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/25 19:31:24 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/26 16:05:11 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,13 @@
 # include <stdlib.h>
 # include <string.h>
 # include <sys/time.h>
+
 # define ERROR -1
+# define EAT 1
+# define SLEEP 2
+# define THINK 3
+# define FORK 4
+# define DEAD 5
 
 typedef struct s_philo_conditions
 {
@@ -35,11 +41,15 @@ typedef struct  s_lock
 	t_philo_conditions	*conditions;
     pthread_mutex_t		*fork;
 	pthread_mutex_t		tv_mutex;
-    time_t              time_offset;
+    struct timeval      start_point;
     struct timeval      tv;
 	int					index;
 }               t_lock;
 
 int		ft_atoi(const char *str);
+int		ft_isnum(char c);
+int		argument_num_check(char *argv[]);
+int		init_conditions(char *argv[], t_philo_conditions *conditions);
+int		parse_arguments(char *argv[], t_philo_conditions *conditions);
 
 #endif

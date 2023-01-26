@@ -1,0 +1,8 @@
+{
+	"files.associations": {
+		"_types.h": "c",
+		"__mutex_base": "c",
+		"memory": "c",
+		"mutex": "c"
+	}
+}

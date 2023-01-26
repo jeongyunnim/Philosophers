@@ -7,6 +7,7 @@ INC			=	./philosopher.h
 
 SRC			=	./philosopher.c\
 				./ft_atoi.c\
+				./parse_arguments.c\
 
 OBJ			=	$(SRC:%.c=%.o)
 

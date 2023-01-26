@@ -6,120 +6,62 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/25 20:04:07 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/26 16:06:37 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosopher.h"
+#include "./philosopher.h"
 
-int	ft_isnum(char c)
+void	print_status(t_lock *lock, int num, char status)
 {
-	if ('0' <= c && c <= '9')
-	{
-		return (0);
-	}
-	return (-1);
-}
+	long	passed_sec;
+	int		passed_usec;
 
-int	argument_num_check(char *argv[])
-{
-	int	i;
-	int	j;
-
-	i = 1;
-	if (argv[i] != NULL)
-	{
-		j = 0;
-		while (argv[i][j] != '\0')
-		{
-			if (ft_isnum(argv[i][j]) != 0)
-				return (ERROR);
-			j++;
-		}
-		i++;
-	}
-	return (0);
-}
-
-int	init_conditions(char *argv[], t_philo_conditions *conditions)
-{
-	char	option;
-
-	option = 0;
-	memset(conditions, 0, sizeof(*conditions));
-	conditions->philo_number = ft_atoi(argv[1]);
-	conditions->time_to_die = ft_atoi(argv[2]);
-	conditions->time_to_eat = ft_atoi(argv[3]);
-	conditions->time_to_sleep = ft_atoi(argv[4]);
-	if (argv[5] != NULL)
-	{
-		option = 1;
-		conditions->must_eat = ft_atoi(argv[5]);
-	}
-	if (conditions->philo_number <= 1 || conditions->time_to_die <= 0 || \
-		conditions->time_to_eat <= 0 || conditions->time_to_sleep <= 0)
-	{
-		return (ERROR);
-	}
-	if (option == 1)
-	{
-		if (conditions->must_eat <= 0)
-			return (ERROR);
-	}
-	return (0);
-}
-
-int	parse_arguments(char *argv[], t_philo_conditions *conditions)
-{
-	if (argument_num_check(argv) != 0)
-	{
-		write(1, "Error\nARGUMENT ISN'T NUMBER\n", 28);
-		return (ERROR);
-	}
-	if (init_conditions(argv, conditions) != 0)
-	{
-		write(1, "Error\nINVALID ARGUMENT\n", 23);
-		return (ERROR);
-	}
-	return (0);
+	gettimeofday(&lock->tv, NULL);
+	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
+	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
+	if (status == EAT)
+		printf("%ld %d is eating\n", passed_sec / 1000 + passed_usec * 1000, num);
+	else if (status == SLEEP)
+		printf("%ld %d is sleeping\n",passed_sec / 1000 + passed_usec * 1000, num);
+	else if (status == THINK)
+		printf("%ld %d is thinking\n",passed_sec / 1000 + passed_usec * 1000, num);
+	else if (status == DEAD)
+		printf("%ld %d died\n",passed_sec / 1000 + passed_usec * 1000, num);
+	else if (status == FORK)
+		printf("%ld %d has taken a fork\n",passed_sec / 1000 + passed_usec * 1000, num);
 }
 
 void	pick_up_forks(t_lock *lock, int num, int left_fork, int right_fork)
 {
-	if (num % 2 == 1)
+	//if (num % 2 == 1)
+	//{
+	//	pthread_mutex_lock(&lock->fork[left_fork]);
+	//	printf("%dth philosopher picked up left fork\n", num);
+	//	pthread_mutex_lock(&lock->fork[right_fork]);
+	//	printf("%dth philosopher picked up right fork\n", num);
+	//}
+	//else
 	{
-		pthread_mutex_lock(&lock->fork[left_fork]);
-		printf("%dth philosopher picked up left fork\n", num);
 		pthread_mutex_lock(&lock->fork[right_fork]);
-		printf("%dth philosopher picked up right fork\n", num);
-	}
-	else
-	{
-		pthread_mutex_lock(&lock->fork[right_fork]);
-		printf("%dth philosopher picked up right fork\n", num);
 		pthread_mutex_lock(&lock->fork[left_fork]);
-		printf("%dth philosopher picked up left fork\n", num);
+		print_status(lock, num, FORK);
 	}	
 }
 
 void	eating_spagetti(t_lock *lock, int num, int left_fork, int right_fork)
 {
-    gettimeofday(&lock->tv, NULL);
-	printf("%ld %d is thinking\n", lock->tv.tv_usec - lock->time_offset, num);
+	print_status(lock, num, THINK);
 	pick_up_forks(lock, num, left_fork, right_fork);
-	printf("%ld %d is eating\n", lock->tv.tv_usec - lock->time_offset, num);
-    gettimeofday(&lock->tv, NULL);
-	printf("%ld %d put a left fork\n", lock->tv.tv_usec - lock->time_offset, num);
-	pthread_mutex_unlock(&lock->fork[left_fork]);
-    gettimeofday(&lock->tv, NULL);
-	printf("%ld %d put a right fork\n", lock->tv.tv_usec - lock->time_offset, num);
-	pthread_mutex_unlock(&lock->fork[right_fork]);
+	print_status(lock, num, EAT);
 	usleep(lock->conditions->time_to_eat);
+	pthread_mutex_unlock(&lock->fork[left_fork]);
+	pthread_mutex_unlock(&lock->fork[right_fork]);
 }
 
 void	sleeping(t_lock *lock, int num)
 {
-	printf("philosopher %d is sleeping %d\n", num, lock->conditions->time_to_sleep);
+	print_status(lock, num, SLEEP);
 	usleep(lock->conditions->time_to_sleep);
 }
 
@@ -137,7 +79,7 @@ void	*philosopher_do_something(void *fork)
 		left_fork = lock->conditions->philo_number - 1;
 	else
 		left_fork = num - 2;
-	printf("Hi, i'm philosopher %d!\n", num);
+	//printf("Hi, i'm philosopher %d!\n", num);
 	while (1)
 	{
 		eating_spagetti(lock, num, left_fork, right_fork);
@@ -159,14 +101,13 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 	locks.conditions = conditions;
 	pthread_mutex_init(&locks.tv_mutex, NULL);
 	i = 0;
-    gettimeofday(&locks.tv, NULL);
-    locks.time_offset = locks.tv.tv_usec;
 	while (i < conditions->philo_number)
 	{
 		pthread_mutex_init(&fork[i], NULL);
 		i++;
 	}
 	locks.fork = fork;
+	gettimeofday(&locks.start_point, NULL);
 	i = 0;
 	while (i < conditions->philo_number)
 	{
