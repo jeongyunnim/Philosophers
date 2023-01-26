@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/26 16:29:20 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/26 19:47:00 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,19 +36,20 @@ void	print_status(t_lock *lock, int num, char status)
 
 void	pick_up_forks(t_lock *lock, int num, int left_fork, int right_fork)
 {
-	if (num % 2 == 1)
-	{
-		pthread_mutex_lock(&lock->fork[left_fork]);
-		pthread_mutex_lock(&lock->fork[right_fork]);
-		print_status(lock, num, FORK);
-	}
-	else
-	{
-		pthread_mutex_lock(&lock->fork[right_fork]);
-		pthread_mutex_lock(&lock->fork[left_fork]);
-		print_status(lock, num, FORK);
-	}	
+	pthread_mutex_lock(&lock->fork[right_fork]);
+	pthread_mutex_lock(&lock->fork[left_fork]);
+	print_status(lock, num, FORK);
 }
+
+//void	dead_check(t_lock *lock, int num)
+//{
+//	long	passed_sec;
+//	int		passed_usec;
+
+//	gettimeofday(&lock->tv, NULL);
+//	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
+//	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
+//}
 
 void	eating_spagetti(t_lock *lock, int num, int left_fork, int right_fork)
 {

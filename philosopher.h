@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/26 16:05:11 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/26 19:37:43 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,10 @@ typedef struct  s_lock
 	t_philo_conditions	*conditions;
     pthread_mutex_t		*fork;
 	pthread_mutex_t		tv_mutex;
-    struct timeval      start_point;
     struct timeval      tv;
+    struct timeval      start_point;
 	int					index;
+	long				last_eat;
 }               t_lock;
 
 int		ft_atoi(const char *str);
