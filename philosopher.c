@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/26 16:06:37 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/26 16:29:20 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,31 +17,32 @@ void	print_status(t_lock *lock, int num, char status)
 	long	passed_sec;
 	int		passed_usec;
 
+	pthread_mutex_lock(&lock->tv_mutex);
 	gettimeofday(&lock->tv, NULL);
 	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
 	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
+	pthread_mutex_unlock(&lock->tv_mutex);
 	if (status == EAT)
-		printf("%ld %d is eating\n", passed_sec / 1000 + passed_usec * 1000, num);
+		printf("%ld %d is eating\n", passed_sec * 1000 + passed_usec / 1000, num);
 	else if (status == SLEEP)
-		printf("%ld %d is sleeping\n",passed_sec / 1000 + passed_usec * 1000, num);
+		printf("%ld %d is sleeping\n", passed_sec * 1000 + passed_usec / 1000, num);
 	else if (status == THINK)
-		printf("%ld %d is thinking\n",passed_sec / 1000 + passed_usec * 1000, num);
+		printf("%ld %d is thinking\n", passed_sec * 1000 + passed_usec / 1000, num);
 	else if (status == DEAD)
-		printf("%ld %d died\n",passed_sec / 1000 + passed_usec * 1000, num);
+		printf("%ld %d died\n", passed_sec * 1000 + passed_usec / 1000, num);
 	else if (status == FORK)
-		printf("%ld %d has taken a fork\n",passed_sec / 1000 + passed_usec * 1000, num);
+		printf("%ld %d has taken a fork\n", passed_sec * 1000 + passed_usec / 1000, num);
 }
 
 void	pick_up_forks(t_lock *lock, int num, int left_fork, int right_fork)
 {
-	//if (num % 2 == 1)
-	//{
-	//	pthread_mutex_lock(&lock->fork[left_fork]);
-	//	printf("%dth philosopher picked up left fork\n", num);
-	//	pthread_mutex_lock(&lock->fork[right_fork]);
-	//	printf("%dth philosopher picked up right fork\n", num);
-	//}
-	//else
+	if (num % 2 == 1)
+	{
+		pthread_mutex_lock(&lock->fork[left_fork]);
+		pthread_mutex_lock(&lock->fork[right_fork]);
+		print_status(lock, num, FORK);
+	}
+	else
 	{
 		pthread_mutex_lock(&lock->fork[right_fork]);
 		pthread_mutex_lock(&lock->fork[left_fork]);
@@ -54,7 +55,7 @@ void	eating_spagetti(t_lock *lock, int num, int left_fork, int right_fork)
 	print_status(lock, num, THINK);
 	pick_up_forks(lock, num, left_fork, right_fork);
 	print_status(lock, num, EAT);
-	usleep(lock->conditions->time_to_eat);
+	usleep(lock->conditions->time_to_eat * 1000);
 	pthread_mutex_unlock(&lock->fork[left_fork]);
 	pthread_mutex_unlock(&lock->fork[right_fork]);
 }
@@ -62,7 +63,7 @@ void	eating_spagetti(t_lock *lock, int num, int left_fork, int right_fork)
 void	sleeping(t_lock *lock, int num)
 {
 	print_status(lock, num, SLEEP);
-	usleep(lock->conditions->time_to_sleep);
+	usleep(lock->conditions->time_to_sleep * 1000);
 }
 
 void	*philosopher_do_something(void *fork)
@@ -79,7 +80,6 @@ void	*philosopher_do_something(void *fork)
 		left_fork = lock->conditions->philo_number - 1;
 	else
 		left_fork = num - 2;
-	//printf("Hi, i'm philosopher %d!\n", num);
 	while (1)
 	{
 		eating_spagetti(lock, num, left_fork, right_fork);
