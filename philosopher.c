@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/26 19:47:00 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/26 20:59:18 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,22 +16,24 @@ void	print_status(t_lock *lock, int num, char status)
 {
 	long	passed_sec;
 	int		passed_usec;
+	long	time_stamp;
 
 	pthread_mutex_lock(&lock->tv_mutex);
 	gettimeofday(&lock->tv, NULL);
 	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
 	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
+	time_stamp = passed_sec * 1000 + passed_usec / 1000;
 	pthread_mutex_unlock(&lock->tv_mutex);
 	if (status == EAT)
-		printf("%ld %d is eating\n", passed_sec * 1000 + passed_usec / 1000, num);
+		printf("%ld %d is eating\n", time_stamp, num);
 	else if (status == SLEEP)
-		printf("%ld %d is sleeping\n", passed_sec * 1000 + passed_usec / 1000, num);
+		printf("%ld %d is sleeping\n", time_stamp, num);
 	else if (status == THINK)
-		printf("%ld %d is thinking\n", passed_sec * 1000 + passed_usec / 1000, num);
+		printf("%ld %d is thinking\n", time_stamp, num);
 	else if (status == DEAD)
-		printf("%ld %d died\n", passed_sec * 1000 + passed_usec / 1000, num);
+		printf("%ld %d died\n", time_stamp, num);
 	else if (status == FORK)
-		printf("%ld %d has taken a fork\n", passed_sec * 1000 + passed_usec / 1000, num);
+		printf("%ld %d has taken a fork\n", time_stamp, num);
 }
 
 void	pick_up_forks(t_lock *lock, int num, int left_fork, int right_fork)
@@ -89,10 +91,33 @@ void	*philosopher_do_something(void *fork)
 	return (NULL);
 }
 
+int survive_check(t_lock *lock)
+{
+	long			time_stamp;
+	long			passed_sec;
+	int				passed_usec;
+	unsigned int	i;
+
+	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
+	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
+	time_stamp = passed_sec * 1000 + passed_usec / 1000;
+	i = 0;
+	while (1)
+	{
+		while (i < lock->conditions->philo_number) // index와 같지 않나?
+		{
+			if (lock->last_eat < lock->conditions->time_to_die)
+
+		} 
+		i++;
+	}
+}
+
 int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 {
 	pthread_t		philosophers[conditions->philo_number];
 	pthread_mutex_t	fork[conditions->philo_number];
+	int				last_eat[conditions->philo_number];
 	t_lock			locks;
 	int				i;
 
@@ -135,8 +160,5 @@ int	main(int argc, char *argv[])
 		return (ERROR);
 	}
 	generate_philo(&conditions, &philos);
-    while (1)
-    {}
-    printf("main() is ended\n");
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/26 19:37:43 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/26 20:59:17 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct s_philo_conditions
 	int		must_eat;
 }			t_philo_conditions;
 
-typedef struct  s_lock
+typedef struct  s_philo
 {
 	t_philo_conditions	*conditions;
     pthread_mutex_t		*fork;
@@ -44,8 +44,8 @@ typedef struct  s_lock
     struct timeval      tv;
     struct timeval      start_point;
 	int					index;
-	long				last_eat;
-}               t_lock;
+	long				*last_eat;
+}               t_lock; // philo로 바꿔줘야겠어.
 
 int		ft_atoi(const char *str);
 int		ft_isnum(char c);
