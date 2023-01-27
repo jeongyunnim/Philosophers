@@ -118,7 +118,7 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 	pthread_t		philosophers[conditions->philo_number];
 	pthread_mutex_t	fork[conditions->philo_number];
 	t_lock			locks;
-	int				last_eat[conditions->philo_number];
+//	int				last_eat[conditions->philo_number];
 	int				i;
 
 	*philo = philosophers;
