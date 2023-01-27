@@ -3,6 +3,7 @@
 		"_types.h": "c",
 		"__mutex_base": "c",
 		"memory": "c",
-		"mutex": "c"
+		"mutex": "c",
+		"philosopher.h": "c"
 	}
 }
