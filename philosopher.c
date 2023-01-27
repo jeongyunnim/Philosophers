@@ -91,34 +91,34 @@ void	*philosopher_do_something(void *fork)
 	return (NULL);
 }
 
-int survive_check(t_lock *lock)
-{
-	long			time_stamp;
-	long			passed_sec;
-	int				passed_usec;
-	unsigned int	i;
-
-	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
-	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
-	time_stamp = passed_sec * 1000 + passed_usec / 1000;
-	i = 0;
-	while (1)
-	{
-		while (i < lock->conditions->philo_number) // index와 같지 않나?
-		{
-			if (lock->last_eat < lock->conditions->time_to_die)
-
-		} 
-		i++;
-	}
-}
+//int survive_check(t_lock *lock)
+//{
+//	long			time_stamp;
+//	long			passed_sec;
+//	int				passed_usec;
+//	unsigned int	i;
+//
+//	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
+//	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
+//	time_stamp = passed_sec * 1000 + passed_usec / 1000;
+//	i = 0;
+//	while (1)
+//	{
+//		while (i < lock->conditions->philo_number) // index와 같지 않나?
+//		{
+//			if (lock->last_eat < lock->conditions->time_to_die)
+//
+//		}
+//		i++;
+//	}
+//}
 
 int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 {
 	pthread_t		philosophers[conditions->philo_number];
 	pthread_mutex_t	fork[conditions->philo_number];
-	int				last_eat[conditions->philo_number];
 	t_lock			locks;
+	int				last_eat[conditions->philo_number];
 	int				i;
 
 	*philo = philosophers;
