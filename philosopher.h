@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/26 20:59:17 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/27 14:09:40 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 # define SLEEP 2
 # define THINK 3
 # define FORK 4
-# define DEAD 5
+# define DEAD -1
 
 typedef struct s_philo_conditions
 {

@@ -6,26 +6,37 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/26 20:59:18 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/27 14:12:24 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./philosopher.h"
 
-void	print_status(t_lock *lock, int num, char status)
+long	configure_time_stamp(t_lock *lock)
 {
+	long	time_stamp;
 	long	passed_sec;
 	int		passed_usec;
-	long	time_stamp;
 
-	pthread_mutex_lock(&lock->tv_mutex);
 	gettimeofday(&lock->tv, NULL);
 	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
 	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
 	time_stamp = passed_sec * 1000 + passed_usec / 1000;
+	return (time_stamp);
+}
+
+void	print_status(t_lock *lock, int num, char status)
+{
+	long	time_stamp;
+
+	pthread_mutex_lock(&lock->tv_mutex);
+	time_stamp = configure_time_stamp(lock);
 	pthread_mutex_unlock(&lock->tv_mutex);
 	if (status == EAT)
+	{
+		lock->last_eat[num - 1] = time_stamp;
 		printf("%ld %d is eating\n", time_stamp, num);
+	}
 	else if (status == SLEEP)
 		printf("%ld %d is sleeping\n", time_stamp, num);
 	else if (status == THINK)
@@ -91,27 +102,22 @@ void	*philosopher_do_something(void *fork)
 	return (NULL);
 }
 
-//int survive_check(t_lock *lock)
-//{
-//	long			time_stamp;
-//	long			passed_sec;
-//	int				passed_usec;
-//	unsigned int	i;
-//
-//	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
-//	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
-//	time_stamp = passed_sec * 1000 + passed_usec / 1000;
-//	i = 0;
-//	while (1)
-//	{
-//		while (i < lock->conditions->philo_number) // index와 같지 않나?
-//		{
-//			if (lock->last_eat < lock->conditions->time_to_die)
-//
-//		}
-//		i++;
-//	}
-//}
+int survive_check(t_lock *lock)
+{
+	long			time_stamp;
+	unsigned int	i;
+
+	pthread_mutex_lock(&lock->tv_mutex);
+	time_stamp = configure_time_stamp(lock);
+	pthread_mutex_unlock(&lock->tv_mutex);
+	i = 0;
+	while (1)
+	{
+		if (time_stamp - lock->last_eat[i % lock->index] < lock->conditions->time_to_die)
+			lock->last_eat[i] = DEAD;
+		i++;
+	}
+}
 
 int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 {
@@ -142,6 +148,7 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 		pthread_detach(philosophers[i]);
 		i++;
 	}
+	survive_check(&locks);
 	return (0);
 }
 
