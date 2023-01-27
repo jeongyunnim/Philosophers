@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/27 14:09:40 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/27 17:04:40 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@
 # define FORK 4
 # define DEAD -1
 
+# define TIMEVAL_M 0
+# define LASTEAT_M 1
+
 typedef struct s_philo_conditions
 {
 	int		philo_number;
@@ -40,11 +43,12 @@ typedef struct  s_philo
 {
 	t_philo_conditions	*conditions;
     pthread_mutex_t		*fork;
-	pthread_mutex_t		tv_mutex;
+	pthread_mutex_t		mutex[2];
     struct timeval      tv;
     struct timeval      start_point;
 	int					index;
 	long				*last_eat;
+	char				*die_flags;
 }               t_lock; // philo로 바꿔줘야겠어.
 
 int		ft_atoi(const char *str);

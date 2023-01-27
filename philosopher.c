@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/27 14:12:24 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/27 17:03:32 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,7 @@ void	sleeping(t_lock *lock, int num)
 {
 	print_status(lock, num, SLEEP);
 	usleep(lock->conditions->time_to_sleep * 1000);
+	exit(EXIT_SUCCESS);
 }
 
 void	*philosopher_do_something(void *fork)
@@ -107,31 +108,36 @@ int survive_check(t_lock *lock)
 	long			time_stamp;
 	unsigned int	i;
 
-	pthread_mutex_lock(&lock->tv_mutex);
-	time_stamp = configure_time_stamp(lock);
-	pthread_mutex_unlock(&lock->tv_mutex);
 	i = 0;
 	while (1)
 	{
+		pthread_mutex_lock(&lock->tv_mutex);
+		time_stamp = configure_time_stamp(lock);
+		pthread_mutex_unlock(&lock->tv_mutex);
 		if (time_stamp - lock->last_eat[i % lock->index] < lock->conditions->time_to_die)
-			lock->last_eat[i] = DEAD;
+			lock->die_flags[i] = DEAD;
 		i++;
 	}
 }
 
 int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
 {
+	t_lock			locks;
 	pthread_t		philosophers[conditions->philo_number];
 	pthread_mutex_t	fork[conditions->philo_number];
-	t_lock			locks;
-//	int				last_eat[conditions->philo_number];
+	long			last_eat[conditions->philo_number];
+	char			die_flags[conditions->philo_number];
 	int				i;
 
 	*philo = philosophers;
 	memset(fork, 0, sizeof(fork));
 	memset(&locks, 0, sizeof(locks));
+	memset(last_eat, 0, sizeof(last_eat));
+	memset(die_flags, 0, sizeof(die_flags));
 	locks.conditions = conditions;
 	pthread_mutex_init(&locks.tv_mutex, NULL);
+	locks.last_eat = last_eat;
+	locks.die_flags = die_flags;
 	i = 0;
 	while (i < conditions->philo_number)
 	{
