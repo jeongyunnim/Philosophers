@@ -51,7 +51,7 @@ typedef struct  s_philo
 	long				time_stamp;
 	long				*last_eat;
 	char				*die_flags;
-}               t_lock; // philo로 바꿔줘야겠어.
+}               t_philo; // philo로 바꿔줘야겠어.
 
 int		ft_atoi(const char *str);
 int		ft_isnum(char c);

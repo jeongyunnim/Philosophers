@@ -12,27 +12,29 @@
 
 #include "./philosopher.h"
 
-void	configure_time_stamp(t_lock *lock)
+void	configure_time_stamp(t_philo *lock)
 {
-	long	passed_sec;
-	int		passed_usec;
+	long    passed_sec;
+    long    passed_usec;
+	long    present_point;
 
 	gettimeofday(&lock->tv, NULL);
 	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
 	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
-	lock->time_stamp = passed_sec * 1000 + passed_usec / 1000;
+    present_point = passed_sec * 1000 + passed_usec / 1000;
+    lock->time_stamp = present_point;
 }
 
-void	print_status(t_lock *lock, int num, char status)
+void	print_status(t_philo *lock, int num, char status)
 {
+//	configure_time_stamp(lock);
 	pthread_mutex_lock(&lock->mutex[TIMEVAL_M]);
-	configure_time_stamp(lock);
 	if (status == EAT)
 	{
 		pthread_mutex_lock(&lock->mutex[LASTEAT_M]);
 		lock->last_eat[num - 1] = lock->time_stamp;
+        pthread_mutex_unlock(&lock->mutex[LASTEAT_M]);
 		printf("%ld %d is eating\n", lock->time_stamp, num);
-		pthread_mutex_unlock(&lock->mutex[LASTEAT_M]);
 	}
 	else if (status == SLEEP)
 		printf("%ld %d is sleeping\n", lock->time_stamp, num);
@@ -45,14 +47,14 @@ void	print_status(t_lock *lock, int num, char status)
 	pthread_mutex_unlock(&lock->mutex[TIMEVAL_M]);
 }
 
-void	pick_up_forks(t_lock *lock, int num, int left_fork, int right_fork)
+void	pick_up_forks(t_philo *lock, int num, int left_fork, int right_fork)
 {
 	pthread_mutex_lock(&lock->fork[right_fork]);
 	pthread_mutex_lock(&lock->fork[left_fork]);
 	print_status(lock, num, FORK);
 }
 
-//void	dead_check(t_lock *lock, int num)
+//void	dead_check(t_philo *lock, int num)
 //{
 //	long	passed_sec;
 //	int		passed_usec;
@@ -62,7 +64,7 @@ void	pick_up_forks(t_lock *lock, int num, int left_fork, int right_fork)
 //	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
 //}
 
-void	eating_spagetti(t_lock *lock, int num, int left_fork, int right_fork)
+void	eating_spagetti(t_philo *lock, int num, int left_fork, int right_fork)
 {
 	int	time_to_eat;
 
@@ -75,7 +77,7 @@ void	eating_spagetti(t_lock *lock, int num, int left_fork, int right_fork)
 	pthread_mutex_unlock(&lock->fork[right_fork]);
 }
 
-void	sleeping(t_lock *lock, int num)
+void	sleeping(t_philo *lock, int num)
 {
 	print_status(lock, num, SLEEP);
 	usleep(lock->conditions->time_to_sleep * 1000);
@@ -84,12 +86,12 @@ void	sleeping(t_lock *lock, int num)
 
 void	*philosopher_do_something(void *fork)
 {
-	t_lock	*lock;
+	t_philo	*lock;
 	int		num;
 	int		left_fork;
 	int		right_fork;
 
-	lock = (t_lock *)fork;
+	lock = (t_philo *)fork;
 	num = lock->index;
 	right_fork = num - 1;
 	if (num == 1)
@@ -104,7 +106,7 @@ void	*philosopher_do_something(void *fork)
 	return (NULL);
 }
 
-int survive_check(t_lock *lock)
+int survive_check(t_philo *lock)
 {
 	unsigned int	i;
 
@@ -127,49 +129,54 @@ int survive_check(t_lock *lock)
 	}
 }
 
-int	generate_philo(t_philo_conditions *conditions, pthread_t **philo)
+int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *shared)
 {
-	t_lock			locks;
-	pthread_t		philosophers[conditions->philo_number];
-	pthread_mutex_t	fork[conditions->philo_number];
-	long			last_eat[conditions->philo_number];
-	char			die_flags[conditions->philo_number];
-	int				i;
+    pthread_t		philosophers[conditions->philo_number];
+    int				i;
 
-	*philo = philosophers;
-	memset(fork, 0, sizeof(fork));
-	memset(&locks, 0, sizeof(locks));
-	memset(last_eat, 0, sizeof(last_eat));
-	memset(die_flags, 0, sizeof(die_flags));
-	locks.conditions = conditions;
-	pthread_mutex_init(&locks.mutex[TIMEVAL_M], NULL);
-	pthread_mutex_init(&locks.mutex[LASTEAT_M], NULL);
-	pthread_mutex_init(&locks.mutex[DIEFLAG_M], NULL);
-	locks.last_eat = last_eat;
-	locks.die_flags = die_flags;
+    *philo = philosophers;
+    i = 0;
+    while (i < conditions->philo_number)
+	{
+        shared->index++;
+        pthread_create(&philosophers[i], NULL, philosopher_do_something, &shared);
+        pthread_detach(philosophers[i]);
+        i++;
+    }
+    survive_check(shared);
+    return (0);
+}
+
+void    init_philo(t_philo *philo_shared, int cnt)
+{
+    pthread_mutex_t	fork[cnt];
+    long    *last_eat;
+    char    *die_flags;
+    int     i;
+
 	i = 0;
-	while (i < conditions->philo_number)
+    gettimeofday(&philo_shared->start_point, NULL);
+	while (i < cnt)
 	{
 		pthread_mutex_init(&fork[i], NULL);
 		i++;
 	}
-	locks.fork = fork;
-	gettimeofday(&locks.start_point, NULL);
-	i = 0;
-	while (i < conditions->philo_number)
-	{
-		locks.index++;
-		pthread_create(&philosophers[i], NULL, philosopher_do_something, &locks);
-		pthread_detach(philosophers[i]);
-		i++;
-	}
-	survive_check(&locks);
-	return (0);
+    pthread_mutex_init(&philo_shared->mutex[0], NULL);
+    pthread_mutex_init(&philo_shared->mutex[1], NULL);
+    pthread_mutex_init(&philo_shared->mutex[2], NULL);
+    philo_shared->fork = fork;
+    last_eat = (long *)malloc(sizeof(long) * cnt);
+    die_flags = (char *)malloc(sizeof(char) * cnt);
+    memset(last_eat, 0, sizeof(long) * cnt);
+    memset(die_flags, 0, sizeof(char) * cnt);
+    philo_shared->last_eat = last_eat;
+    philo_shared->die_flags = die_flags;
 }
 
 int	main(int argc, char *argv[])
 {
 	pthread_t           *philos;
+    t_philo             philo_share;
 	t_philo_conditions  conditions;
 
 	if (argc != 5 && argc != 6)
@@ -181,6 +188,7 @@ int	main(int argc, char *argv[])
 	{
 		return (ERROR);
 	}
-	generate_philo(&conditions, &philos);
+    init_philo(&philo_share, conditions.philo_number);
+	generate_philo(&conditions, &philos, &philo_share);
 	return (0);
 }
