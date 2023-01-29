@@ -32,7 +32,7 @@ void	print_status(t_philo *lock, int num, char status)
 	if (status == EAT)
 	{
 		pthread_mutex_lock(&lock->mutex[LASTEAT_M]);
-		lock->last_eat[num - 1] = lock->time_stamp;
+		lock->last_eat[num] = lock->time_stamp;
         pthread_mutex_unlock(&lock->mutex[LASTEAT_M]);
 		printf("%ld %d is eating\n", lock->time_stamp, num);
 	}
@@ -81,7 +81,6 @@ void	sleeping(t_philo *lock, int num)
 {
 	print_status(lock, num, SLEEP);
 	usleep(lock->conditions->time_to_sleep * 1000);
-	exit(EXIT_SUCCESS);
 }
 
 void	*philosopher_do_something(void *fork)
@@ -92,7 +91,9 @@ void	*philosopher_do_something(void *fork)
 	int		right_fork;
 
 	lock = (t_philo *)fork;
-	num = lock->index;
+    pthread_mutex_lock(&lock->mutex[INDEXFLAG_M]);
+    num = lock->index;
+    pthread_mutex_unlock(&lock->mutex[INDEXFLAG_M]);
 	right_fork = num - 1;
 	if (num == 1)
 		left_fork = lock->conditions->philo_number - 1;
@@ -109,6 +110,7 @@ void	*philosopher_do_something(void *fork)
 int survive_check(t_philo *lock)
 {
 	unsigned int	i;
+    long            last_eat_val;
 
 	i = 0;
 	while (1)
@@ -117,14 +119,19 @@ int survive_check(t_philo *lock)
 		configure_time_stamp(lock);
 		pthread_mutex_lock(&lock->mutex[LASTEAT_M]);
 		pthread_mutex_lock(&lock->mutex[DIEFLAG_M]);
-		if (lock->time_stamp - lock->last_eat[i % lock->index] < lock->conditions->time_to_die)
+		if (lock->time_stamp - lock->last_eat[i % lock->conditions->philo_number] < lock->conditions->time_to_die)
 		{
 			printf("현재시간 - 마지막 먹은 시간 %ld\n", lock->time_stamp - lock->last_eat[i % lock->index]);
 			lock->die_flags[i] = DEAD;
 		}
+        else
+        {
+            last_eat_val = lock->last_eat[i % lock->index];
+            printf("??? %ld\n", last_eat_val);
+        }
 		pthread_mutex_unlock(&lock->mutex[DIEFLAG_M]);
 		pthread_mutex_unlock(&lock->mutex[LASTEAT_M]);
-		pthread_mutex_unlock(&lock->mutex[TIMEVAL_M]);
+        pthread_mutex_unlock(&lock->mutex[TIMEVAL_M]);
 		i++;
 	}
 }
@@ -132,14 +139,23 @@ int survive_check(t_philo *lock)
 int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *shared)
 {
     pthread_t		philosophers[conditions->philo_number];
+    long			last_eat[conditions->philo_number];
+    char			die_flags[conditions->philo_number];
     int				i;
 
     *philo = philosophers;
     i = 0;
+    memset(last_eat, 0, sizeof(last_eat));
+    memset(die_flags, 0, sizeof(die_flags));
+    shared->conditions = conditions;
+    shared->last_eat = last_eat;
+    shared->die_flags = die_flags;
     while (i < conditions->philo_number)
 	{
-        shared->index++;
-        pthread_create(&philosophers[i], NULL, philosopher_do_something, &shared);
+        pthread_mutex_lock(&shared->mutex[INDEXFLAG_M]);
+        shared->index += 1;
+        pthread_mutex_unlock(&shared->mutex[INDEXFLAG_M]);
+        pthread_create(&philosophers[i], NULL, philosopher_do_something, shared);
         pthread_detach(philosophers[i]);
         i++;
     }
@@ -150,9 +166,7 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *s
 void    init_philo(t_philo *philo_shared, int cnt)
 {
     pthread_mutex_t	fork[cnt];
-    long    *last_eat;
-    char    *die_flags;
-    int     i;
+    int             i;
 
 	i = 0;
     gettimeofday(&philo_shared->start_point, NULL);
@@ -164,13 +178,8 @@ void    init_philo(t_philo *philo_shared, int cnt)
     pthread_mutex_init(&philo_shared->mutex[0], NULL);
     pthread_mutex_init(&philo_shared->mutex[1], NULL);
     pthread_mutex_init(&philo_shared->mutex[2], NULL);
+    pthread_mutex_init(&philo_shared->mutex[3], NULL);
     philo_shared->fork = fork;
-    last_eat = (long *)malloc(sizeof(long) * cnt);
-    die_flags = (char *)malloc(sizeof(char) * cnt);
-    memset(last_eat, 0, sizeof(long) * cnt);
-    memset(die_flags, 0, sizeof(char) * cnt);
-    philo_shared->last_eat = last_eat;
-    philo_shared->die_flags = die_flags;
 }
 
 int	main(int argc, char *argv[])
@@ -188,6 +197,7 @@ int	main(int argc, char *argv[])
 	{
 		return (ERROR);
 	}
+    memset(&philo_share, 0, sizeof(philo_share));
     init_philo(&philo_share, conditions.philo_number);
 	generate_philo(&conditions, &philos, &philo_share);
 	return (0);

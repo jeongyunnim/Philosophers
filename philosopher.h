@@ -30,6 +30,7 @@
 # define TIMEVAL_M 0
 # define LASTEAT_M 1
 # define DIEFLAG_M 2
+# define INDEXFLAG_M 3
 
 typedef struct s_philo_conditions
 {
@@ -44,14 +45,14 @@ typedef struct  s_philo
 {
 	t_philo_conditions	*conditions;
     pthread_mutex_t		*fork;
-	pthread_mutex_t		mutex[3];
+    pthread_mutex_t		mutex[4];
+    long				*last_eat;
+    char				*die_flags;
     struct timeval      tv;
     struct timeval      start_point;
 	int					index;
 	long				time_stamp;
-	long				*last_eat;
-	char				*die_flags;
-}               t_philo; // philo로 바꿔줘야겠어.
+}               t_philo;
 
 int		ft_atoi(const char *str);
 int		ft_isnum(char c);

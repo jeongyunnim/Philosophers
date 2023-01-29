@@ -71,12 +71,12 @@ int	init_conditions(char *argv[], t_philo_conditions *conditions)
 
 int	parse_arguments(char *argv[], t_philo_conditions *conditions)
 {
-	if (argument_num_check(argv) != 0)
+	if (argument_num_check(argv) == ERROR)
 	{
 		write(1, "Error\nARGUMENT ISN'T NUMBER\n", 28);
 		return (ERROR);
 	}
-	if (init_conditions(argv, conditions) != 0)
+	if (init_conditions(argv, conditions) == ERROR)
 	{
 		write(1, "Error\nINVALID ARGUMENT\n", 23);
 		return (ERROR);
