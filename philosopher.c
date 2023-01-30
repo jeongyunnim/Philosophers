@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/30 15:30:47 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/30 15:45:24 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ void	configure_time_stamp(t_philo *lock)
 
 void	print_status(t_philo *lock, int num, char status)
 {
-//	configure_time_stamp(lock);
 	pthread_mutex_lock(&lock->mutex[TIMEVAL_M]);
 	if (status == EAT)
 	{
@@ -44,6 +43,8 @@ void	print_status(t_philo *lock, int num, char status)
 		printf("%ld %d died\n", lock->time_stamp, num);
 	else if (status == FORK)
 		printf("%ld %d has taken a fork\n", lock->time_stamp, num);
+	else if (status == 5)
+		printf("%ld %d has put a fork\n", lock->time_stamp, num);
 	pthread_mutex_unlock(&lock->mutex[TIMEVAL_M]);
 }
 
@@ -54,27 +55,17 @@ void	pick_up_forks(t_philo *lock, int num, int left_fork, int right_fork)
 	print_status(lock, num, FORK);
 }
 
-//void	dead_check(t_philo *lock, int num)
-//{
-//	long	passed_sec;
-//	int		passed_usec;
-
-//	gettimeofday(&lock->tv, NULL);
-//	passed_sec = lock->tv.tv_sec - lock->start_point.tv_sec;
-//	passed_usec = lock->tv.tv_usec - lock->start_point.tv_usec;
-//}
-
 void	eating_spagetti(t_philo *lock, int num, int left_fork, int right_fork)
 {
 	int	time_to_eat;
 
 	time_to_eat = lock->conditions->time_to_eat;
-	print_status(lock, num, THINK);
 	pick_up_forks(lock, num, left_fork, right_fork);
 	print_status(lock, num, EAT);
 	usleep(time_to_eat * 1000);
 	pthread_mutex_unlock(&lock->fork[left_fork]);
 	pthread_mutex_unlock(&lock->fork[right_fork]);
+	print_status(lock, num, 5);
 }
 
 void	sleeping(t_philo *lock, int num)
@@ -101,6 +92,7 @@ void	*philosopher_do_something(void *fork)
 		left_fork = num - 2;
 	while (1)
 	{
+		print_status(lock, num, THINK);
 		eating_spagetti(lock, num, left_fork, right_fork);
  		sleeping(lock, num);
 	}
@@ -121,8 +113,8 @@ int survive_check(t_philo *lock)
 		pthread_mutex_lock(&lock->mutex[DIEFLAG_M]);
 		if (lock->time_stamp - lock->last_eat[i % lock->conditions->philo_number] < lock->conditions->time_to_die)
 		{
-			printf("현재시간 - 마지막 먹은 시간 %ld\n", lock->time_stamp - lock->last_eat[i % lock->index]);
-			lock->die_flags[i] = DEAD;
+			printf("%d가 마지막 먹은 시간 %ld\n", i % lock->index,  lock->time_stamp - lock->last_eat[i % lock->index]);
+			lock->die_flags[i % lock->conditions->philo_number] = DEAD;
 		}
 		//else
 		//{
