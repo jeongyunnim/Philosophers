@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/30 19:24:10 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/30 20:26:35 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,16 +48,17 @@ void	print_status(t_philo *lock, int num, char status)
 		printf("%ld %d has taken a fork\n", lock->time_stamp, num);
 	else if (status == 5)
 		printf("%ld %d has put a fork\n", lock->time_stamp, num);
-	else if (status == 6)
-		printf("%ld %d has taken a 왼fork\n", lock->time_stamp, num);
-	else if (status == 7)
-		printf("%ld %d has taken a 오fork\n", lock->time_stamp, num);
 	pthread_mutex_unlock(&lock->mutex[TIMEVAL_M]);
 }
 
-//void	pick_up_forks(t_philo *lock, int num, int left_fork, int right_fork)
-//{
-//}
+void	pick_up_forks(t_philo *shared, int num, int left_fork, int right_fork)
+{
+	pthread_mutex_lock(&shared->fork_mutex[right_fork]);
+	pthread_mutex_lock(&shared->fork_mutex[left_fork]);
+	shared->fork[right_fork] = 1;
+	shared->fork[left_fork] = 1;
+	print_status(shared, num, FORK);
+}
 
 //void	split_usleep(int mili_sec)
 //{
@@ -74,22 +75,13 @@ void	print_status(t_philo *lock, int num, char status)
 
 void	eating_spagetti(t_philo *shared, int num, int left_fork, int right_fork)
 {
-	//pick_up_forks(lock, num, left_fork, right_fork);
-	pthread_mutex_lock(&shared->fork_mutex[right_fork]);
-	print_status(shared, num, 7);
-	shared->fork[right_fork] = 1;
-	pthread_mutex_lock(&shared->fork_mutex[left_fork]);
-	print_status(shared, num, 6);
-	shared->fork[left_fork] = 1;
-	print_status(shared, num, FORK);
+	pick_up_forks(shared, num, left_fork, right_fork);
 	
-	printf("num: %d lf %d rf %d\n", num, left_fork, right_fork);
 	print_status(shared, num, EAT);
 	usleep(shared->conditions->time_to_eat * 1000);
-	printf("얼마나 자니? -> %d 만큼이요.\n ",shared->conditions->time_to_eat * 1000 );
 	shared->fork[left_fork] = 0;
-	pthread_mutex_unlock(&shared->fork_mutex[left_fork]);
 	shared->fork[right_fork] = 0;
+	pthread_mutex_unlock(&shared->fork_mutex[left_fork]);
 	pthread_mutex_unlock(&shared->fork_mutex[right_fork]);
 	print_status(shared, num, 5);
 }
@@ -98,6 +90,15 @@ void	sleeping(t_philo *lock, int num)
 {
 	print_status(lock, num, SLEEP);
 	usleep(lock->conditions->time_to_sleep * 1000);
+}
+
+int	dead_check(t_philo *shared)
+{
+	pthread_mutex_lock(&shared->mutex[DIEFLAG_M]);
+	if (shared->die_flags == DEAD)
+		return (DEAD);
+	pthread_mutex_unlock(&shared->mutex[DIEFLAG_M]);
+	return (0);
 }
 
 void	*philosopher_do_something(void *fork)
@@ -118,9 +119,17 @@ void	*philosopher_do_something(void *fork)
 		left_fork = num - 2;
 	while (1)
 	{
-		print_status(lock, num, THINK);
-		eating_spagetti(lock, num, left_fork, right_fork);
- 		sleeping(lock, num);
+		if (dead_check(lock) != DEAD)
+			eating_spagetti(lock, num, left_fork, right_fork);
+		if (dead_check(lock) != DEAD)
+		 	sleeping(lock, num);
+		if (dead_check(lock) != DEAD)
+			print_status(lock, num, THINK);
+		else
+		{
+			print_status(lock, num, DEAD);
+			return (NULL);
+		}
 	}
 	return (NULL);
 }
@@ -139,7 +148,8 @@ int survive_check(t_philo *lock)
 		pthread_mutex_lock(&lock->mutex[DIEFLAG_M]);
 		if (lock->time_stamp - lock->last_eat[i % lock->conditions->philo_number] < lock->conditions->time_to_die)
 		{
-			lock->die_flags[i % lock->conditions->philo_number] = DEAD;
+			lock->die_flags = DEAD;
+			print_status(lock, i % lock->conditions->philo_number, DEAD);
 		}
 		pthread_mutex_unlock(&lock->mutex[DIEFLAG_M]);
 		pthread_mutex_unlock(&lock->mutex[LASTEAT_M]);
@@ -151,25 +161,36 @@ int survive_check(t_philo *lock)
 int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *shared)
 {
 	pthread_t		*philosophers;
+	pthread_mutex_t	*fork_mutex;
 	long			*last_eat;
 	int				*fork;
-	char			*die_flags;
 	int				i;
 
     i = 0;
+
+	fork_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * conditions->philo_number);
+	memset(fork_mutex, 0, sizeof(pthread_mutex_t) * conditions->philo_number);
+	while (i < conditions->philo_number)
+	{
+		pthread_mutex_init(&fork_mutex[i], NULL);
+		i++;
+	}
+	shared->fork_mutex = fork_mutex;
 	philosophers = (pthread_t *)malloc(sizeof(pthread_t) * conditions->philo_number);
 	last_eat = (long *)malloc(sizeof(long) * conditions->philo_number);
 	fork = (int *)calloc(sizeof(int), conditions->philo_number);
-	die_flags = (char *)malloc(sizeof(char) * conditions->philo_number);
     memset(last_eat, 0, sizeof(long) * conditions->philo_number);
-    memset(die_flags, 0, sizeof(char) * conditions->philo_number);
     *philo = philosophers;
     shared->conditions = conditions;
 	shared->fork = fork;
     shared->last_eat = last_eat;
-    shared->die_flags = die_flags;
+	i = 0;
     while (i < conditions->philo_number)
 	{
+		if (i % 2 == 0)
+		{
+			usleep(400);
+		}
         pthread_mutex_lock(&shared->mutex[INDEXFLAG_M]);
         shared->index += 1;
         pthread_mutex_unlock(&shared->mutex[INDEXFLAG_M]);
@@ -181,23 +202,16 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *s
     return (0);
 }
 
-void    init_philo(t_philo *philo_shared, int cnt)
+void    init_philo(t_philo *philo_shared)
 {
-    pthread_mutex_t	fork_mutex[cnt];
     int             i;
 
 	i = 0;
     gettimeofday(&philo_shared->start_point, NULL);
-	while (i < cnt)
-	{
-		pthread_mutex_init(&fork_mutex[i], NULL);
-		i++;
-	}
     pthread_mutex_init(&philo_shared->mutex[0], NULL);
     pthread_mutex_init(&philo_shared->mutex[1], NULL);
     pthread_mutex_init(&philo_shared->mutex[2], NULL);
     pthread_mutex_init(&philo_shared->mutex[3], NULL);
-    philo_shared->fork_mutex = fork_mutex;
 }
 
 int	main(int argc, char *argv[])
@@ -216,7 +230,7 @@ int	main(int argc, char *argv[])
 		return (ERROR);
 	}
     memset(&philo_share, 0, sizeof(philo_share));
-    init_philo(&philo_share, conditions.philo_number);
+    init_philo(&philo_share);
 	generate_philo(&conditions, &philos, &philo_share);
 	return (0);
 }

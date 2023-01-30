@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/30 19:04:19 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/30 20:21:22 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,13 @@ typedef struct s_philo_conditions
 
 typedef struct  s_philo
 {
+	struct timeval      tv;
+	struct timeval      start_point;
 	t_philo_conditions	*conditions;
-    pthread_mutex_t		*fork_mutex;
-    pthread_mutex_t		mutex[4];
-    long				*last_eat;
-    char				*die_flags; // 각자의 죽음을 알 필요가 있었나?
-    struct timeval      tv;
-    struct timeval      start_point;
+	pthread_mutex_t		*fork_mutex;
+	pthread_mutex_t		mutex[4];
+	long				*last_eat;
+	char				die_flags; // 각자의 죽음을 알 필요가 있었나?
 	int					index;
 	int					*fork;
 	long				time_stamp;
