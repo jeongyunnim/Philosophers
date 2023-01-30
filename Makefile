@@ -1,7 +1,8 @@
 NAME		=	./philosopher
 
 CC			=	cc
-CFLAGS		=	-Wall -Wextra -Werror -g3 -fsanitize=thread
+CFLAGS		=	-Wall -Wextra -Werror \
+ -g3 -fsanitize=thread
 
 INC			=	./philosopher.h
 

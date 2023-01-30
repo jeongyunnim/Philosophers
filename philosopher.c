@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/30 15:45:24 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/30 19:24:10 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,32 +40,58 @@ void	print_status(t_philo *lock, int num, char status)
 	else if (status == THINK)
 		printf("%ld %d is thinking\n", lock->time_stamp, num);
 	else if (status == DEAD)
+	{
 		printf("%ld %d died\n", lock->time_stamp, num);
+		exit(EXIT_SUCCESS);
+	}
 	else if (status == FORK)
 		printf("%ld %d has taken a fork\n", lock->time_stamp, num);
 	else if (status == 5)
 		printf("%ld %d has put a fork\n", lock->time_stamp, num);
+	else if (status == 6)
+		printf("%ld %d has taken a 왼fork\n", lock->time_stamp, num);
+	else if (status == 7)
+		printf("%ld %d has taken a 오fork\n", lock->time_stamp, num);
 	pthread_mutex_unlock(&lock->mutex[TIMEVAL_M]);
 }
 
-void	pick_up_forks(t_philo *lock, int num, int left_fork, int right_fork)
-{
-	pthread_mutex_lock(&lock->fork[right_fork]);
-	pthread_mutex_lock(&lock->fork[left_fork]);
-	print_status(lock, num, FORK);
-}
+//void	pick_up_forks(t_philo *lock, int num, int left_fork, int right_fork)
+//{
+//}
 
-void	eating_spagetti(t_philo *lock, int num, int left_fork, int right_fork)
-{
-	int	time_to_eat;
+//void	split_usleep(int mili_sec)
+//{
+//	struct timeval	standard_point;
+//	struct timeval	passed_ms;
 
-	time_to_eat = lock->conditions->time_to_eat;
-	pick_up_forks(lock, num, left_fork, right_fork);
-	print_status(lock, num, EAT);
-	usleep(time_to_eat * 1000);
-	pthread_mutex_unlock(&lock->fork[left_fork]);
-	pthread_mutex_unlock(&lock->fork[right_fork]);
-	print_status(lock, num, 5);
+//	gettimeofday(&standard_point, NULL);
+//	while (mili_sec > 0)
+//	{
+//		gettimeofday(&passed_ms, NULL);
+
+//	}
+//}
+
+void	eating_spagetti(t_philo *shared, int num, int left_fork, int right_fork)
+{
+	//pick_up_forks(lock, num, left_fork, right_fork);
+	pthread_mutex_lock(&shared->fork_mutex[right_fork]);
+	print_status(shared, num, 7);
+	shared->fork[right_fork] = 1;
+	pthread_mutex_lock(&shared->fork_mutex[left_fork]);
+	print_status(shared, num, 6);
+	shared->fork[left_fork] = 1;
+	print_status(shared, num, FORK);
+	
+	printf("num: %d lf %d rf %d\n", num, left_fork, right_fork);
+	print_status(shared, num, EAT);
+	usleep(shared->conditions->time_to_eat * 1000);
+	printf("얼마나 자니? -> %d 만큼이요.\n ",shared->conditions->time_to_eat * 1000 );
+	shared->fork[left_fork] = 0;
+	pthread_mutex_unlock(&shared->fork_mutex[left_fork]);
+	shared->fork[right_fork] = 0;
+	pthread_mutex_unlock(&shared->fork_mutex[right_fork]);
+	print_status(shared, num, 5);
 }
 
 void	sleeping(t_philo *lock, int num)
@@ -82,9 +108,9 @@ void	*philosopher_do_something(void *fork)
 	int		right_fork;
 
 	lock = (t_philo *)fork;
-    pthread_mutex_lock(&lock->mutex[INDEXFLAG_M]);
-    num = lock->index;
-    pthread_mutex_unlock(&lock->mutex[INDEXFLAG_M]);
+	pthread_mutex_lock(&lock->mutex[INDEXFLAG_M]);
+	num = lock->index;
+	pthread_mutex_unlock(&lock->mutex[INDEXFLAG_M]);
 	right_fork = num - 1;
 	if (num == 1)
 		left_fork = lock->conditions->philo_number - 1;
@@ -113,14 +139,8 @@ int survive_check(t_philo *lock)
 		pthread_mutex_lock(&lock->mutex[DIEFLAG_M]);
 		if (lock->time_stamp - lock->last_eat[i % lock->conditions->philo_number] < lock->conditions->time_to_die)
 		{
-			printf("%d가 마지막 먹은 시간 %ld\n", i % lock->index,  lock->time_stamp - lock->last_eat[i % lock->index]);
 			lock->die_flags[i % lock->conditions->philo_number] = DEAD;
 		}
-		//else
-		//{
-		//	last_eat_val = lock->last_eat[i % lock->index];
-		//	printf("??? %ld\n", last_eat_val);
-		//}
 		pthread_mutex_unlock(&lock->mutex[DIEFLAG_M]);
 		pthread_mutex_unlock(&lock->mutex[LASTEAT_M]);
         pthread_mutex_unlock(&lock->mutex[TIMEVAL_M]);
@@ -130,16 +150,22 @@ int survive_check(t_philo *lock)
 
 int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *shared)
 {
-    pthread_t		philosophers[conditions->philo_number];
-    long			last_eat[conditions->philo_number];
-    char			die_flags[conditions->philo_number];
-    int				i;
+	pthread_t		*philosophers;
+	long			*last_eat;
+	int				*fork;
+	char			*die_flags;
+	int				i;
 
-    *philo = philosophers;
     i = 0;
-    memset(last_eat, 0, sizeof(last_eat));
-    memset(die_flags, 0, sizeof(die_flags));
+	philosophers = (pthread_t *)malloc(sizeof(pthread_t) * conditions->philo_number);
+	last_eat = (long *)malloc(sizeof(long) * conditions->philo_number);
+	fork = (int *)calloc(sizeof(int), conditions->philo_number);
+	die_flags = (char *)malloc(sizeof(char) * conditions->philo_number);
+    memset(last_eat, 0, sizeof(long) * conditions->philo_number);
+    memset(die_flags, 0, sizeof(char) * conditions->philo_number);
+    *philo = philosophers;
     shared->conditions = conditions;
+	shared->fork = fork;
     shared->last_eat = last_eat;
     shared->die_flags = die_flags;
     while (i < conditions->philo_number)
@@ -157,21 +183,21 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *s
 
 void    init_philo(t_philo *philo_shared, int cnt)
 {
-    pthread_mutex_t	fork[cnt];
+    pthread_mutex_t	fork_mutex[cnt];
     int             i;
 
 	i = 0;
     gettimeofday(&philo_shared->start_point, NULL);
 	while (i < cnt)
 	{
-		pthread_mutex_init(&fork[i], NULL);
+		pthread_mutex_init(&fork_mutex[i], NULL);
 		i++;
 	}
     pthread_mutex_init(&philo_shared->mutex[0], NULL);
     pthread_mutex_init(&philo_shared->mutex[1], NULL);
     pthread_mutex_init(&philo_shared->mutex[2], NULL);
     pthread_mutex_init(&philo_shared->mutex[3], NULL);
-    philo_shared->fork = fork;
+    philo_shared->fork_mutex = fork_mutex;
 }
 
 int	main(int argc, char *argv[])
