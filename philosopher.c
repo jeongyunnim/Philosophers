@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/27 21:14:52 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/01/30 15:30:47 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ void	*philosopher_do_something(void *fork)
 int survive_check(t_philo *lock)
 {
 	unsigned int	i;
-    long            last_eat_val;
+    //long            last_eat_val;
 
 	i = 0;
 	while (1)
@@ -124,11 +124,11 @@ int survive_check(t_philo *lock)
 			printf("현재시간 - 마지막 먹은 시간 %ld\n", lock->time_stamp - lock->last_eat[i % lock->index]);
 			lock->die_flags[i] = DEAD;
 		}
-        else
-        {
-            last_eat_val = lock->last_eat[i % lock->index];
-            printf("??? %ld\n", last_eat_val);
-        }
+		//else
+		//{
+		//	last_eat_val = lock->last_eat[i % lock->index];
+		//	printf("??? %ld\n", last_eat_val);
+		//}
 		pthread_mutex_unlock(&lock->mutex[DIEFLAG_M]);
 		pthread_mutex_unlock(&lock->mutex[LASTEAT_M]);
         pthread_mutex_unlock(&lock->mutex[TIMEVAL_M]);
