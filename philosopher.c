@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/30 20:59:03 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/02 18:07:36 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,8 +202,8 @@ void    init_shared_mem(t_philo *philo_shared, int num)
 		pthread_mutex_init(&fork_mutex[i], NULL);
 		i++;
 	}
-	philo_sharedshared->fork_mutex = fork_mutex;
-	philosophers = (pthread_t *)calloc(sizeof(pthread_t), num);
+	philo_shared->fork_mutex = fork_mutex;
+	philo_shared. = (pthread_t *)calloc(sizeof(pthread_t), num);
 	shared->last_eat = (long *)calloc(sizeof(long), num);
 	shared->fork = (int *)calloc(sizeof(int), num);
     gettimeofday(&philo_shared->start_point, NULL);
@@ -213,7 +213,7 @@ void    init_shared_mem(t_philo *philo_shared, int num)
 int	main(int argc, char *argv[])
 {
 	pthread_t           *philos;
-    t_philo             philo_share;
+    t_philo             *philo_share;
 	t_philo_conditions  conditions;
 
 	if (argc != 5 && argc != 6)
