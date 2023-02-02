@@ -46,7 +46,7 @@ typedef struct  s_philo
 	struct timeval      start_point;
 	t_conditions		*conditions;
 	pthread_mutex_t		*fork_mutex;
-	pthread_mutex_t		mutexes[3];
+	pthread_mutex_t		*mutexes;
 	int					*fork;
 	long				*last_eat;
 	long				time_stamp;

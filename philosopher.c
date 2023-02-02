@@ -27,7 +27,6 @@ void	configure_time_stamp(t_philo *lock)
 
 void	print_status(t_philo *lock, int num, char status)
 {
-	pthread_mutex_lock(&lock->struct_mutex); // 누가 사용 중이니?
 	if (status == EAT)
 	{
 		lock->last_eat[num] = lock->time_stamp;
@@ -45,7 +44,6 @@ void	print_status(t_philo *lock, int num, char status)
 		printf("%ld %d has taken a fork\n", lock->time_stamp, num);
 	else if (status == 5)
 		printf("%ld %d has put a fork\n", lock->time_stamp, num);
-	pthread_mutex_unlock(&lock->struct_mutex);
 }
 
 void	pick_up_forks(t_philo *shared, int num, int left_fork, int right_fork)
@@ -92,15 +90,15 @@ void	sleeping(t_philo *lock, int num)
 int	dead_check(t_philo *shared, int num)
 {
 	printf("%d 디짐?\n", num);
-	pthread_mutex_lock(&shared->struct_mutex);
+	pthread_mutex_lock(&shared->mutexes[DIE_M]);
 	if (shared->die_flags == DEAD)
 	{
 		printf("%d 응 디짐\n", num);
-		pthread_mutex_unlock(&shared->struct_mutex);
+		pthread_mutex_unlock(&shared->mutexes[DIE_M]);
 		return (DEAD);
 	}
 	printf("%d 살아있다.\n", num);
-	pthread_mutex_unlock(&shared->struct_mutex);
+	pthread_mutex_unlock(&shared->mutexes[DIE_M]);
 	return (0);
 }
 
@@ -112,9 +110,9 @@ void	*philosopher_do_something(void *fork)
 	int		right_fork;
 
 	lock = (t_philo *)fork;
-	pthread_mutex_lock(&lock->struct_mutex);
+	pthread_mutex_lock(&lock->mutexes[INDEX_M]);
 	num = lock->index;
-	pthread_mutex_unlock(&lock->struct_mutex);
+	pthread_mutex_unlock(&lock->mutexes[INDEX_M]);
 	right_fork = num - 1;
 	if (num == 1)
 		left_fork = lock->conditions->philo_number - 1;
@@ -170,7 +168,7 @@ int	generate_philo(t_conditions *conditions, pthread_t **philo, t_philo *shared)
     while (i < conditions->philo_number)
 	{
         pthread_mutex_lock(&shared->mutexes[INDEX_M]);
-        shared->index += 1;1
+        shared->index += 1;
         pthread_mutex_unlock(&shared->mutexes[INDEX_M]);
         pthread_create(philo[i], NULL, philosopher_do_something, shared);
         pthread_detach(*philo[i]);
@@ -188,6 +186,7 @@ void	init_mutex_array(pthread_mutex_t **mutex_arr, int num)
 	int	i;
 
 	i = 0;
+	*mutex_arr = (pthread_mutex_t *)calloc(sizeof(pthread_mutex_t), num);
 	while (i < num)
 	{
 		pthread_mutex_init(mutex_arr[i], NULL);
@@ -198,13 +197,11 @@ void	init_mutex_array(pthread_mutex_t **mutex_arr, int num)
 void    init_shared_mem(t_philo *philo_shared, t_conditions *conditions) // calloc 사용 중
 {
 	int	num;
-    int	i;
 
 	num = conditions->philo_number;
 	philo_shared->conditions = conditions;
-	philo_shared->fork_mutex = (pthread_mutex_t *)calloc(sizeof(pthread_mutex_t), num);
-	init_mutex_array(philo_shared->fork_mutex, num);
-	init_mutex_array(philo_shared->mutexes, 3);
+	init_mutex_array(&philo_shared->fork_mutex, num);
+	init_mutex_array(&philo_shared->mutexes, 3);
 	philo_shared->last_eat = (long *)calloc(sizeof(long), num);
 	philo_shared->fork = (int *)calloc(sizeof(int), num);
 }
@@ -225,7 +222,7 @@ int	main(int argc, char *argv[])
 		return (ERROR);
 	}
     memset(&philo_share, 0, sizeof(philo_share));
-    init_shared_mem(&philo_share, &philos, &conditions);
+    init_shared_mem(&philo_share, &conditions);
 	generate_philo(&conditions, &philos, &philo_share);
 	return (0);
 }
