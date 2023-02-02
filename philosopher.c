@@ -163,29 +163,12 @@ int survive_check(t_philo *lock)
 int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *shared)
 {
 	pthread_t		*philosophers;
-	pthread_mutex_t	*fork_mutex;
-	long			*last_eat;
-	int				*fork;
 	int				i;
 
     i = 0;
 
-	fork_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * conditions->philo_number);
-	memset(fork_mutex, 0, sizeof(pthread_mutex_t) * conditions->philo_number);
-	while (i < conditions->philo_number)
-	{
-		pthread_mutex_init(&fork_mutex[i], NULL);
-		i++;
-	}
-	shared->fork_mutex = fork_mutex;
-	philosophers = (pthread_t *)malloc(sizeof(pthread_t) * conditions->philo_number);
-	last_eat = (long *)malloc(sizeof(long) * conditions->philo_number);
-	fork = (int *)calloc(sizeof(int), conditions->philo_number);
-    memset(last_eat, 0, sizeof(long) * conditions->philo_number);
     *philo = philosophers;
     shared->conditions = conditions;
-	shared->fork = fork;
-    shared->last_eat = last_eat;
 	i = 0;
     while (i < conditions->philo_number)
 	{
@@ -204,11 +187,25 @@ int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *s
     return (0);
 }
 
-void    init_philo(t_philo *philo_shared)
+void    init_shared_mem(t_philo *philo_shared, int num)
 {
+	pthread_mutex_t	*fork_mutex;
+	long			*last_eat;
+	int				*fork;
     int             i;
 
-	i = 0;
+    i = 0;
+	fork_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num);
+	memset(fork_mutex, 0, sizeof(pthread_mutex_t) * num);
+	while (i < num)
+	{
+		pthread_mutex_init(&fork_mutex[i], NULL);
+		i++;
+	}
+	philo_sharedshared->fork_mutex = fork_mutex;
+	philosophers = (pthread_t *)calloc(sizeof(pthread_t), num);
+	shared->last_eat = (long *)calloc(sizeof(long), num);
+	shared->fork = (int *)calloc(sizeof(int), num);
     gettimeofday(&philo_shared->start_point, NULL);
     pthread_mutex_init(&philo_shared->struct_mutex, NULL);
 }
@@ -229,7 +226,7 @@ int	main(int argc, char *argv[])
 		return (ERROR);
 	}
     memset(&philo_share, 0, sizeof(philo_share));
-    init_philo(&philo_share);
+    init_shared_mem(&philo_share);
 	generate_philo(&conditions, &philos, &philo_share);
 	return (0);
 }

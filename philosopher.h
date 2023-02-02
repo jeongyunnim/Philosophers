@@ -27,11 +27,6 @@
 # define FORK 4
 # define DEAD 1
 
-# define TIMEVAL_M 0
-# define LASTEAT_M 1
-# define DIEFLAG_M 2
-# define INDEXFLAG_M 3
-
 typedef struct s_philo_conditions
 {
 	int		philo_number;
