@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/02 19:32:03 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/02 20:40:13 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,13 +170,15 @@ int	generate_philo(t_conditions *conditions, pthread_t **philo, t_philo *shared)
     while (i < conditions->philo_number)
 	{
         pthread_mutex_lock(&shared->mutexes[INDEX_M]);
-        shared->index += 1;
+        shared->index += 1;1
         pthread_mutex_unlock(&shared->mutexes[INDEX_M]);
         pthread_create(philo[i], NULL, philosopher_do_something, shared);
         pthread_detach(*philo[i]);
 		pthread_mutex_lock(&shared->mutexes[WAIT_M]);
         i++;
     }
+
+
     survive_check(shared);
     return (0);
 }
@@ -205,8 +207,6 @@ void    init_shared_mem(t_philo *philo_shared, t_conditions *conditions) // call
 	init_mutex_array(philo_shared->mutexes, 3);
 	philo_shared->last_eat = (long *)calloc(sizeof(long), num);
 	philo_shared->fork = (int *)calloc(sizeof(int), num);
-    gettimeofday(&philo_shared->start_point, NULL);
-	
 }
 
 int	main(int argc, char *argv[])
