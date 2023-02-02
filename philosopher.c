@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/02 18:07:36 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/02 19:32:03 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,81 +140,80 @@ void	*philosopher_do_something(void *fork)
 	return (NULL);
 }
 
-int survive_check(t_philo *lock)
+int survive_check(t_philo *shared)
 {
 	unsigned int	i;
-    //long            last_eat_val;
 
 	i = 0;
 	while (1)
 	{
-		pthread_mutex_lock(&lock->struct_mutex);
-		configure_time_stamp(lock);
-		if (lock->time_stamp - lock->last_eat[i % lock->conditions->philo_number] < lock->conditions->time_to_die)
+		configure_time_stamp(shared);
+		if (shared->time_stamp - shared->last_eat[i % shared->conditions->philo_number] < shared->conditions->time_to_die)
 		{
-			lock->die_flags = DEAD;
-			print_status(lock, i % lock->conditions->philo_number, DEAD);
+			shared->die_flags = DEAD;
+			print_status(shared, i % shared->conditions->philo_number, DEAD);
 		}
-        pthread_mutex_unlock(&lock->struct_mutex);
 		i++;
+		usleep(100);
 	}
 }
 
-int	generate_philo(t_philo_conditions *conditions, pthread_t **philo, t_philo *shared)
+int	generate_philo(t_conditions *conditions, pthread_t **philo, t_philo *shared)
 {
-	pthread_t		*philosophers;
 	int				i;
 
     i = 0;
 
-    *philo = philosophers;
+	*philo = (pthread_t *)calloc(sizeof(pthread_t), conditions->philo_number);
     shared->conditions = conditions;
 	i = 0;
     while (i < conditions->philo_number)
 	{
-		if (i % 2 == 0)
-		{
-			usleep(400);
-		}
-        pthread_mutex_lock(&shared->struct_mutex);
+        pthread_mutex_lock(&shared->mutexes[INDEX_M]);
         shared->index += 1;
-        pthread_mutex_unlock(&shared->struct_mutex);
-        pthread_create(&philosophers[i], NULL, philosopher_do_something, shared);
-        pthread_detach(philosophers[i]);
+        pthread_mutex_unlock(&shared->mutexes[INDEX_M]);
+        pthread_create(philo[i], NULL, philosopher_do_something, shared);
+        pthread_detach(*philo[i]);
+		pthread_mutex_lock(&shared->mutexes[WAIT_M]);
         i++;
     }
     survive_check(shared);
     return (0);
 }
 
-void    init_shared_mem(t_philo *philo_shared, int num)
+void	init_mutex_array(pthread_mutex_t **mutex_arr, int num)
 {
-	pthread_mutex_t	*fork_mutex;
-	long			*last_eat;
-	int				*fork;
-    int             i;
+	int	i;
 
-    i = 0;
-	fork_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num);
-	memset(fork_mutex, 0, sizeof(pthread_mutex_t) * num);
+	i = 0;
 	while (i < num)
 	{
-		pthread_mutex_init(&fork_mutex[i], NULL);
+		pthread_mutex_init(mutex_arr[i], NULL);
 		i++;
 	}
-	philo_shared->fork_mutex = fork_mutex;
-	philo_shared. = (pthread_t *)calloc(sizeof(pthread_t), num);
-	shared->last_eat = (long *)calloc(sizeof(long), num);
-	shared->fork = (int *)calloc(sizeof(int), num);
+}
+
+void    init_shared_mem(t_philo *philo_shared, t_conditions *conditions) // calloc 사용 중
+{
+	int	num;
+    int	i;
+
+	num = conditions->philo_number;
+	philo_shared->conditions = conditions;
+	philo_shared->fork_mutex = (pthread_mutex_t *)calloc(sizeof(pthread_mutex_t), num);
+	init_mutex_array(philo_shared->fork_mutex, num);
+	init_mutex_array(philo_shared->mutexes, 3);
+	philo_shared->last_eat = (long *)calloc(sizeof(long), num);
+	philo_shared->fork = (int *)calloc(sizeof(int), num);
     gettimeofday(&philo_shared->start_point, NULL);
-    pthread_mutex_init(&philo_shared->struct_mutex, NULL);
+	
 }
 
 int	main(int argc, char *argv[])
 {
 	pthread_t           *philos;
-    t_philo             *philo_share;
-	t_philo_conditions  conditions;
+    t_philo             philo_share;
+	t_conditions  		conditions;
 
 	if (argc != 5 && argc != 6)
 	{
@@ -226,7 +225,7 @@ int	main(int argc, char *argv[])
 		return (ERROR);
 	}
     memset(&philo_share, 0, sizeof(philo_share));
-    init_shared_mem(&philo_share);
+    init_shared_mem(&philo_share, &philos, &conditions);
 	generate_philo(&conditions, &philos, &philo_share);
 	return (0);
 }

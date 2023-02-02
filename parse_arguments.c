@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/26 15:51:14 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/02 17:59:01 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/02 19:22:27 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ int	argument_num_check(char *argv[])
 	return (0);
 }
 
-int	init_conditions(char *argv[], t_philo_conditions *conditions)
+int	init_conditions(char *argv[], t_conditions *conditions)
 {
 	char	option;
 
@@ -69,7 +69,7 @@ int	init_conditions(char *argv[], t_philo_conditions *conditions)
 	return (0);
 }
 
-int	parse_arguments(char *argv[], t_philo_conditions *conditions)
+int	parse_arguments(char *argv[], t_conditions *conditions)
 {
 	if (argument_num_check(argv) == ERROR)
 	{
