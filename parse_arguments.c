@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/26 15:51:14 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/02 19:22:27 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/03 15:32:41 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	argument_num_check(char *argv[])
 	int	j;
 
 	i = 1;
-	if (argv[i] != NULL)
+	while (argv[i] != NULL)
 	{
 		j = 0;
 		while (argv[i][j] != '\0')

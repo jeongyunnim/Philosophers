@@ -2,13 +2,14 @@ NAME		=	./philosopher
 
 CC			=	cc
 CFLAGS		=	-Wall -Wextra -Werror \
- -g3 -fsanitize=thread
+# -g3 -fsanitize=thread
 
 INC			=	./philosopher.h
 
 SRC			=	./philosopher.c\
 				./ft_atoi.c\
 				./parse_arguments.c\
+				./init_structure.c\
 
 OBJ			=	$(SRC:%.c=%.o)
 
