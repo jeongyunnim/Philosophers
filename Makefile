@@ -1,4 +1,4 @@
-NAME		=	./philosopher
+NAME		=	./philo
 
 CC			=	cc
 CFLAGS		=	-Wall -Wextra -Werror \

@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/03 21:10:36 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/03 21:29:53 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,6 @@ void	print_status(t_philo *shared, int num, char status)
 	}
 	else if (status == FORK)
 		printf("%ld %d has taken a fork\n", shared->time_stamp, num);
-	else
-		printf("%ld %d has put a fork\n", shared->time_stamp, num);
 	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
 }
 
@@ -112,7 +110,6 @@ int	eating_spagetti(t_philo *shared, int num, int left_fork, int right_fork)
 		return (DEAD);
 	}
 	put_down_forks(shared, left_fork, right_fork);
-	print_status(shared, num, 10);
 	return (0);
 }
 
