@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/03 19:01:09 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/03 21:10:36 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,8 @@ void	print_status(t_philo *shared, int num, char status)
 	if (status == EAT)
 	{
 		pthread_mutex_lock(&shared->mutexes[LASTEAT_M]);
-		shared->last_eat[num] = shared->time_stamp;
+		shared->last_eat[num - 1] = shared->time_stamp;
+		//printf("lasteat %ld num: %d\n", shared->last_eat[num - 1], num);
 		pthread_mutex_unlock(&shared->mutexes[LASTEAT_M]);
 		printf("%ld %d is eating\n", shared->time_stamp, num);
 	}
@@ -57,6 +58,8 @@ void	print_status(t_philo *shared, int num, char status)
 	}
 	else if (status == FORK)
 		printf("%ld %d has taken a fork\n", shared->time_stamp, num);
+	else
+		printf("%ld %d has put a fork\n", shared->time_stamp, num);
 	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
 }
 
@@ -94,7 +97,7 @@ int	split_usleep(t_philo *shared, useconds_t ms)
 		gettimeofday(&passed, NULL);
 		passed_sec = passed.tv_sec - standard.tv_sec;
 		passed_usec = passed.tv_usec - standard.tv_usec;
-		usleep(200);
+		usleep(100);
 	}
 	return (0);
 }
@@ -103,12 +106,13 @@ int	eating_spagetti(t_philo *shared, int num, int left_fork, int right_fork)
 {
 	pick_up_forks(shared, num, left_fork, right_fork);
 	print_status(shared, num, EAT);
-	if (split_usleep(shared, shared->conditions->time_to_eat * 1000) == DEAD) // usleep 하다가 죽으면 return DEAD
+	if (split_usleep(shared, shared->conditions->time_to_eat * 1000) == DEAD)
 	{
-		put_down_forks(shared, left_fork, right_fork);	
+		put_down_forks(shared, left_fork, right_fork);
 		return (DEAD);
 	}
 	put_down_forks(shared, left_fork, right_fork);
+	print_status(shared, num, 10);
 	return (0);
 }
 
@@ -140,8 +144,12 @@ void	*philosopher_do_something(void *philo_shared)
 	else
 		left_fork = num - 2;
 
+	pthread_mutex_lock(&shared->mutexes[WAIT_M]);
+	pthread_mutex_unlock(&shared->mutexes[WAIT_M]);
 	while (1)
 	{
+		if (num % 2 == 0)
+			usleep(100);
 		if (eating_spagetti(shared, num, left_fork, right_fork) == DEAD)
 			break ;
 	 	if (sleeping(shared, num) == DEAD)
@@ -160,6 +168,7 @@ int survive_check(t_philo *shared)
 	die_time = shared->conditions->time_to_die;
 	num = shared->conditions->philo_number;
 	gettimeofday(&shared->start_point, NULL);
+	pthread_mutex_unlock(&shared->mutexes[WAIT_M]);
 	i = 0;
 	while (1)
 	{
@@ -167,7 +176,7 @@ int survive_check(t_philo *shared)
 		pthread_mutex_lock(&shared->mutexes[DIE_M]);
 		if (shared->time_stamp - shared->last_eat[i % num] > die_time)
 		{
-			printf("%d 왜죽음? lasteat %ld / %ld %u\n",i % num + 1, shared->last_eat[i % num], shared->time_stamp - shared->last_eat[i % num] , die_time);
+			//printf("%d -> lasteat %ld 지난 시간 %ld 죽음의 시간: %u\n",i % num + 1, shared->last_eat[i % num], shared->time_stamp - shared->last_eat[i % num] , die_time);
 			print_status(shared, i % num + 1, DEAD);
 			shared->die_flags = DEAD;
 			break ;
@@ -194,7 +203,7 @@ int	generate_philo(t_conditions *conditions, t_philo *shared)
 		pthread_detach(shared->philos[i]);
         i++;
     }
-	//pthread_mutex_lock(&shared->mutexes[WAIT_M]);
+	pthread_mutex_lock(&shared->mutexes[WAIT_M]);
     survive_check(shared);
     return (0);
 }

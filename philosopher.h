@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/03 17:53:44 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/03 20:06:45 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <sys/time.h>
 
 # define ERROR -1
+
 # define EAT 1
 # define SLEEP 2
 # define THINK 3
