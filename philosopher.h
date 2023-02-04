@@ -28,13 +28,14 @@
 # define FORK 4
 # define DEAD 5
 
-# define TOTAL_MUTEX 5
+# define TOTAL_MUTEX 6
 
 # define INDEX_M 0
 # define WAIT_M 1
 # define DIE_M 2
 # define LASTEAT_M 3
 # define TIME_M 4
+# define EATCNT_M 5
 
 
 typedef struct s_philo_conditions
@@ -56,9 +57,11 @@ typedef struct  s_philo
 	pthread_mutex_t		*mutexes;
 	int					*fork;
 	long				*last_eat;
+	int					*eat_cnt;
 	long				time_stamp;
 	int					index;
-	char				die_flags;
+	char				die_flag;
+	char				eat_flag;
 }               t_philo;
 
 int		ft_atoi(const char *str);

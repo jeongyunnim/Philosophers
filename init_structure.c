@@ -38,4 +38,5 @@ void    init_shared_mem(t_philo *philo_shared, t_conditions *conditions) // call
 	philo_shared->philos = (pthread_t *)calloc(sizeof(pthread_t), num);
 	philo_shared->last_eat = (long *)calloc(sizeof(long), num);
 	philo_shared->fork = (int *)calloc(sizeof(int), num);
+	philo_shared->eat_cnt = (int *)calloc(sizeof(int), num);
 }
