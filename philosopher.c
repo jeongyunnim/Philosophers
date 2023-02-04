@@ -39,13 +39,13 @@ int	eat_check(t_philo *shared)
 void	configure_time_stamp(t_philo *shared)
 {
 	long    passed_sec;
-    long    passed_usec;
+	long    passed_usec;
 
 	pthread_mutex_lock(&shared->mutexes[TIME_M]);
 	gettimeofday(&shared->tv, NULL);
 	passed_sec = shared->tv.tv_sec - shared->start_point.tv_sec;
 	passed_usec = shared->tv.tv_usec - shared->start_point.tv_usec;
-    shared->time_stamp = passed_sec * 1000 + passed_usec / 1000;
+	shared->time_stamp = passed_sec * 1000 + passed_usec / 1000;
 	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
 }
 
@@ -102,10 +102,12 @@ int	split_usleep(t_philo *shared, useconds_t ms)
 	ms *= 1000;
 	passed_sec = 0;
 	passed_usec = 0;
-	while (passed_sec * 1000000 + passed_usec <= ms)
+	while (passed_sec * (1000000)+ passed_usec <= ms)
 	{
 		if (dead_check(shared) == DEAD)
 			return (DEAD);
+		if (eat_check(shared) == EAT)
+			return (EAT);
 		gettimeofday(&passed, NULL);
 		passed_sec = passed.tv_sec - standard.tv_sec;
 		passed_usec = passed.tv_usec - standard.tv_usec;
@@ -116,24 +118,24 @@ int	split_usleep(t_philo *shared, useconds_t ms)
 
 int	eating_spaghetti(t_philo *shared, int num, int left_fork, int right_fork)
 {
+	char	flag;
+
+	flag = 0;
 	pick_up_forks(shared, num, left_fork, right_fork);
 	print_status(shared, num, EAT);
-	if (split_usleep(shared, shared->conditions->time_to_eat) == DEAD)
-	{
-		put_down_forks(shared, left_fork, right_fork);
-		return (DEAD);
-	}
+	flag = split_usleep(shared, shared->conditions->time_to_eat);
 	put_down_forks(shared, left_fork, right_fork);
-	eat_check()
-	return (0);
+	return (flag);
 }
 
 int	sleeping(t_philo *shared, int num)
 {
+	char	flag;
+
+	flag = 0;
 	print_status(shared, num, SLEEP);
-	if (split_usleep(shared, shared->conditions->time_to_sleep) == DEAD)
-		return (DEAD);
-	return (0);
+	flag = split_usleep(shared, shared->conditions->time_to_sleep);
+	return (flag);
 }
 
 void	*philosopher_do_something(void *philo_shared)
@@ -162,9 +164,9 @@ void	*philosopher_do_something(void *philo_shared)
 	{
 		if (num % 2 == 0)
 			usleep(100);
-		if (eating_spaghetti(shared, num, left_fork, right_fork) == DEAD)
+		if (eating_spaghetti(shared, num, left_fork, right_fork) != 0)
 			break ;
-	 	if (sleeping(shared, num) == DEAD)
+	 	if (sleeping(shared, num) != 0)
 		 	break ;
 		print_status(shared, num, THINK);
 	}
@@ -202,6 +204,7 @@ int	eatcnt_monitor(t_philo *shared, int num)
 			flag = 0;
 			break ;
 		}
+		i++;
 	}
 	if (flag == 1)
 	{
@@ -242,21 +245,21 @@ int	generate_philo(t_conditions *conditions, t_philo *shared)
 {
 	int				i;
 
-    shared->conditions = conditions;
+	shared->conditions = conditions;
 	i = 0;
-    while (i < conditions->philo_number)
+	while (i < conditions->philo_number)
 	{
-        pthread_create(&shared->philos[i], NULL, philosopher_do_something, shared);
+		pthread_create(&shared->philos[i], NULL, philosopher_do_something, shared);
 		pthread_detach(shared->philos[i]);
-        i++;
-    }
+		i++;
+	}
 	pthread_mutex_lock(&shared->mutexes[WAIT_M]);
-    return (0);
+	return (0);
 }
 
 int	main(int argc, char *argv[])
 {
-    t_philo             philo_share;
+	t_philo             philo_share;
 	t_conditions  		conditions;
 
 	if (argc != 5 && argc != 6)
@@ -268,9 +271,9 @@ int	main(int argc, char *argv[])
 	{
 		return (ERROR);
 	}
-    memset(&philo_share, 0, sizeof(philo_share));
-    init_shared_mem(&philo_share, &conditions);
+	memset(&philo_share, 0, sizeof(philo_share));
+	init_shared_mem(&philo_share, &conditions);
 	generate_philo(&conditions, &philo_share);
-    thread_monitoring(&philo_share);
+	thread_monitoring(&philo_share);
 	return (0);
 }
