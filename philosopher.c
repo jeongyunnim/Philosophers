@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/05 16:49:27 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/05 20:51:21 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ int	check_dead_or_full(t_philo *shared)
 
 void	configure_time_stamp(t_philo *shared)
 {
-	long    passed_sec;
-	long    passed_usec;
+	long	passed_sec;
+	long	passed_usec;
 
 	pthread_mutex_lock(&shared->mutexes[TIME_M]);
 	gettimeofday(&shared->tv, NULL);
@@ -60,24 +60,15 @@ void	configure_time_stamp(t_philo *shared)
 
 int	print_status(t_philo *shared, int num, char status)
 {
-	configure_time_stamp(shared);
 	pthread_mutex_lock(&shared->mutexes[TIME_M]);
 	if (status == EAT)
-	{
-		pthread_mutex_lock(&shared->mutexes[LASTEAT_M]);
-		shared->last_eat[num - 1] = shared->time_stamp;
-		shared->eat_cnt[num - 1] += 1;
-		pthread_mutex_unlock(&shared->mutexes[LASTEAT_M]);
 		printf("%ld %d is eating\n", shared->time_stamp, num);
-	}
 	else if (status == SLEEP)
 		printf("%ld %d is sleeping\n", shared->time_stamp, num);
 	else if (status == THINK)
 		printf("%ld %d is thinking\n", shared->time_stamp, num);
 	else if (status == DEAD)
-	{
 		printf("%ld %d died\n", shared->time_stamp, num);
-	}
 	else if (status == FORK)
 		printf("%ld %d has taken a fork\n", shared->time_stamp, num);
 	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
@@ -100,7 +91,7 @@ void	split_usleep(useconds_t ms)
 		gettimeofday(&passed, NULL);
 		passed_sec = passed.tv_sec - standard.tv_sec;
 		passed_usec = passed.tv_usec - standard.tv_usec;
-		usleep(512);
+		usleep(128);
 	}
 }
 
@@ -153,7 +144,6 @@ void	*philosopher_do_something(void *philo_shared)
 		 	break ;
 		if (thinking(shared, num) != 0)
 			break ;
-
 	}
 	return (NULL);
 }
@@ -161,13 +151,19 @@ void	*philosopher_do_something(void *philo_shared)
 int dead_monitor(t_philo *shared, unsigned int i, int num, int die_time)
 {
 	pthread_mutex_lock(&shared->mutexes[DIE_M]);
+	pthread_mutex_lock(&shared->mutexes[TIME_M]);
+	pthread_mutex_lock(&shared->mutexes[LASTEAT_M]);
 	if (shared->time_stamp - shared->last_eat[i % num] > die_time)
 	{
+		pthread_mutex_unlock(&shared->mutexes[LASTEAT_M]);
+		pthread_mutex_unlock(&shared->mutexes[TIME_M]);
 		print_status(shared, i % num + 1, DEAD);
 		shared->die_flag = DEAD;
-		pthread_mutex_unlock(&shared->mutexes[DIE_M]);
+		//pthread_mutex_unlock(&shared->mutexes[DIE_M]);
 		return (DEAD);
 	}
+	pthread_mutex_unlock(&shared->mutexes[LASTEAT_M]);
+	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
 	pthread_mutex_unlock(&shared->mutexes[DIE_M]);
 	return (0);
 }
@@ -200,15 +196,16 @@ int	eatcnt_monitor(t_philo *shared, int num)
 	return (0);
 }
 
-int thread_monitoring(t_philo *shared)
+void	*thread_monitoring(void *philo_shared)
 {
+	t_philo			*shared;
 	unsigned int	i;
 	int				die_time;
 	int				num;
 	
+	shared = (t_philo *)philo_shared;
 	die_time = shared->conditions->time_to_die;
 	num = shared->conditions->philo_number;
-	gettimeofday(&shared->start_point, NULL);
 	pthread_mutex_unlock(&shared->mutexes[WAIT_M]);
 	i = 0;
 	while (1)
@@ -221,8 +218,9 @@ int thread_monitoring(t_philo *shared)
 		i++;
 		usleep(100);
 	}
-	usleep(10 * 1000); //-> usleep 안해줘도 됨.
-	return (0);
+	sleep(1);
+	//printf("monitoring() 종료. 왜 쉬는지는 모르겠군요.\n");
+	return (NULL);
 }
 
 int	generate_philo(t_conditions *conditions, t_philo *shared)
@@ -231,6 +229,7 @@ int	generate_philo(t_conditions *conditions, t_philo *shared)
 
 	shared->conditions = conditions;
 	i = 0;
+	gettimeofday(&shared->start_point, NULL);
 	while (i < conditions->philo_number)
 	{
 		pthread_create(&shared->philos[i], NULL, philosopher_do_something, shared);
@@ -238,6 +237,15 @@ int	generate_philo(t_conditions *conditions, t_philo *shared)
 		i++;
 	}
 	pthread_mutex_lock(&shared->mutexes[WAIT_M]);
+	return (0);
+}
+
+int monitor(t_philo *shared)
+{
+	pthread_t	monitoring;
+
+	pthread_create(&monitoring, NULL, thread_monitoring, shared);
+	pthread_join(monitoring, NULL);
 	return (0);
 }
 
@@ -258,6 +266,6 @@ int	main(int argc, char *argv[])
 	memset(&philo_share, 0, sizeof(philo_share));
 	init_shared_mem(&philo_share, &conditions);
 	generate_philo(&conditions, &philo_share);
-	thread_monitoring(&philo_share);
+	monitor(&philo_share);
 	return (0);
 }

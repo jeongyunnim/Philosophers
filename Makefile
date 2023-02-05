@@ -2,7 +2,8 @@ NAME		=	./philo
 
 CC			=	cc
 CFLAGS		=	-Wall -Wextra -Werror \
-# -g3 -fsanitize=thread
+ -g3 -fsanitize=thread
+
 
 INC			=	./philosopher.h
 
