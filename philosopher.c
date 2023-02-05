@@ -6,13 +6,13 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/03 21:29:53 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/05 16:49:27 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./philosopher.h"
 
-int	dead_check(t_philo *shared)
+char	dead_check(t_philo *shared)
 {
 	pthread_mutex_lock(&shared->mutexes[DIE_M]);
 	if (shared->die_flag == DEAD)
@@ -24,7 +24,7 @@ int	dead_check(t_philo *shared)
 	return (0);
 }
 
-int	eat_check(t_philo *shared)
+char	eat_check(t_philo *shared)
 {
 	pthread_mutex_lock(&shared->mutexes[EATCNT_M]);
 	if (shared->eat_flag == EAT)
@@ -33,6 +33,15 @@ int	eat_check(t_philo *shared)
 		return (EAT);
 	}
 	pthread_mutex_unlock(&shared->mutexes[EATCNT_M]);
+	return (0);
+}
+
+int	check_dead_or_full(t_philo *shared)
+{
+	if (dead_check(shared) == DEAD || eat_check(shared) == EAT)
+	{
+		return (END);
+	}
 	return (0);
 }
 
@@ -49,15 +58,15 @@ void	configure_time_stamp(t_philo *shared)
 	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
 }
 
-void	print_status(t_philo *shared, int num, char status)
+int	print_status(t_philo *shared, int num, char status)
 {
+	configure_time_stamp(shared);
 	pthread_mutex_lock(&shared->mutexes[TIME_M]);
 	if (status == EAT)
 	{
 		pthread_mutex_lock(&shared->mutexes[LASTEAT_M]);
 		shared->last_eat[num - 1] = shared->time_stamp;
 		shared->eat_cnt[num - 1] += 1;
-		//printf("lasteat %ld num: %d\n", shared->last_eat[num - 1], num);
 		pthread_mutex_unlock(&shared->mutexes[LASTEAT_M]);
 		printf("%ld %d is eating\n", shared->time_stamp, num);
 	}
@@ -72,26 +81,10 @@ void	print_status(t_philo *shared, int num, char status)
 	else if (status == FORK)
 		printf("%ld %d has taken a fork\n", shared->time_stamp, num);
 	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
+	return (0);
 }
 
-void	pick_up_forks(t_philo *shared, int num, int left_fork, int right_fork)
-{
-	pthread_mutex_lock(&shared->fork_mutex[right_fork]);
-	shared->fork[right_fork] = 1;
-	pthread_mutex_lock(&shared->fork_mutex[left_fork]);
-	shared->fork[left_fork] = 1;
-	print_status(shared, num, FORK);
-}
-
-void	put_down_forks(t_philo *shared, int left_fork, int right_fork)
-{
-	shared->fork[right_fork] = 0;
-	pthread_mutex_unlock(&shared->fork_mutex[left_fork]);
-	shared->fork[left_fork] = 0;
-	pthread_mutex_unlock(&shared->fork_mutex[right_fork]);
-}
-
-int	split_usleep(t_philo *shared, useconds_t ms)
+void	split_usleep(useconds_t ms)
 {
 	struct timeval	standard;
 	struct timeval	passed;
@@ -104,38 +97,28 @@ int	split_usleep(t_philo *shared, useconds_t ms)
 	passed_usec = 0;
 	while (passed_sec * (1000000)+ passed_usec <= ms)
 	{
-		if (dead_check(shared) == DEAD)
-			return (DEAD);
-		if (eat_check(shared) == EAT)
-			return (EAT);
 		gettimeofday(&passed, NULL);
 		passed_sec = passed.tv_sec - standard.tv_sec;
 		passed_usec = passed.tv_usec - standard.tv_usec;
-		usleep(250);
+		usleep(512);
 	}
-	return (0);
-}
-
-int	eating_spaghetti(t_philo *shared, int num, int left_fork, int right_fork)
-{
-	char	flag;
-
-	flag = 0;
-	pick_up_forks(shared, num, left_fork, right_fork);
-	print_status(shared, num, EAT);
-	flag = split_usleep(shared, shared->conditions->time_to_eat);
-	put_down_forks(shared, left_fork, right_fork);
-	return (flag);
 }
 
 int	sleeping(t_philo *shared, int num)
 {
-	char	flag;
-
-	flag = 0;
+	if (check_dead_or_full(shared) != 0)
+		return (END);
 	print_status(shared, num, SLEEP);
-	flag = split_usleep(shared, shared->conditions->time_to_sleep);
-	return (flag);
+	split_usleep(shared->conditions->time_to_sleep);
+	return (0);
+}
+
+int	thinking(t_philo *shared, int num)
+{
+	if (check_dead_or_full(shared) != 0)
+		return (END);
+	print_status(shared, num, THINK);
+	return (0);
 }
 
 void	*philosopher_do_something(void *philo_shared)
@@ -160,15 +143,17 @@ void	*philosopher_do_something(void *philo_shared)
 
 	pthread_mutex_lock(&shared->mutexes[WAIT_M]);
 	pthread_mutex_unlock(&shared->mutexes[WAIT_M]);
+	if (num % 2 == 0)
+		usleep(100);
 	while (1)
 	{
-		if (num % 2 == 0)
-			usleep(100);
 		if (eating_spaghetti(shared, num, left_fork, right_fork) != 0)
 			break ;
 	 	if (sleeping(shared, num) != 0)
 		 	break ;
-		print_status(shared, num, THINK);
+		if (thinking(shared, num) != 0)
+			break ;
+
 	}
 	return (NULL);
 }
@@ -178,7 +163,6 @@ int dead_monitor(t_philo *shared, unsigned int i, int num, int die_time)
 	pthread_mutex_lock(&shared->mutexes[DIE_M]);
 	if (shared->time_stamp - shared->last_eat[i % num] > die_time)
 	{
-		//printf("%d -> lasteat %ld 지난 시간 %ld 죽음의 시간: %u\n",i % num + 1, shared->last_eat[i % num], shared->time_stamp - shared->last_eat[i % num] , die_time);
 		print_status(shared, i % num + 1, DEAD);
 		shared->die_flag = DEAD;
 		pthread_mutex_unlock(&shared->mutexes[DIE_M]);
@@ -237,7 +221,7 @@ int thread_monitoring(t_philo *shared)
 		i++;
 		usleep(100);
 	}
-	usleep(10 * 1000);
+	usleep(10 * 1000); //-> usleep 안해줘도 됨.
 	return (0);
 }
 

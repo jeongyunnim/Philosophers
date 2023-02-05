@@ -10,6 +10,7 @@ SRC			=	./philosopher.c\
 				./ft_atoi.c\
 				./parse_arguments.c\
 				./init_structure.c\
+				./philo_eat.c\
 
 OBJ			=	$(SRC:%.c=%.o)
 

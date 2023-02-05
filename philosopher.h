@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/03 20:06:45 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/05 16:42:22 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,14 @@
 # include <sys/time.h>
 
 # define ERROR -1
+# define END 1
 
 # define EAT 1
 # define SLEEP 2
 # define THINK 3
 # define FORK 4
 # define DEAD 5
+
 
 # define TOTAL_MUTEX 6
 
@@ -66,11 +68,22 @@ typedef struct  s_philo
 
 int		ft_atoi(const char *str);
 int		ft_isnum(char c);
+
 int		argument_num_check(char *argv[]);
 int		init_conditions(char *argv[], t_conditions *conditions);
 int		parse_arguments(char *argv[], t_conditions *conditions);
 
+
 pthread_mutex_t	*init_mutex_array(int num);
 void    init_shared_mem(t_philo *philo_shared, t_conditions *conditions);
+void	split_usleep(useconds_t ms);
 
+int		check_dead_or_full(t_philo *shared);
+int		print_status(t_philo *shared, int num, char status);
+
+/*philo eatting section*/
+
+int		pick_up_forks(t_philo *shared, int num, int left_fork, int right_fork);
+void	put_down_forks(t_philo *shared, int left_fork, int right_fork);
+int		eating_spaghetti(t_philo *shared, int num, int left_fork, int right_fork);
 #endif
