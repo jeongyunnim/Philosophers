@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/06 17:52:03 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/06 21:44:56 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,68 +19,43 @@ int	end_check(t_philo *shared)
 	pthread_mutex_lock(&shared->mutexes[END_M]);
 	flag = shared->end_flag;
 	pthread_mutex_unlock(&shared->mutexes[END_M]);
-	if (flag == END)
-	{
-		return (END);
-	}
-	return (0);
-}
-
-void	configure_time_stamp(t_philo *shared)
-{
-	long	passed_sec;
-	long	passed_usec;
-
-	pthread_mutex_lock(&shared->mutexes[TIME_M]);
-	gettimeofday(&shared->tv, NULL);
-	passed_sec = shared->tv.tv_sec - shared->start_point.tv_sec;
-	passed_usec = shared->tv.tv_usec - shared->start_point.tv_usec;
-	shared->time_stamp = passed_sec * 1000 + passed_usec / 1000;
-	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
+	return (flag);
 }
 
 int	print_status(t_philo *shared, int num, char status)
 {
-	long	passed_sec;
-	long	passed_usec;
-
-	pthread_mutex_lock(&shared->mutexes[TIME_M]);
-	gettimeofday(&shared->tv, NULL);
-	passed_sec = shared->tv.tv_sec - shared->start_point.tv_sec;
-	passed_usec = shared->tv.tv_usec - shared->start_point.tv_usec;
-	shared->time_stamp = passed_sec * 1000 + passed_usec / 1000;
+	pthread_mutex_lock(&shared->mutexes[PRT_M]);
 	if (status == EAT)
-		printf("%ld %d is eating\n", shared->time_stamp, num);
+		printf("%ld %d is eating\n", get_time() - shared->start_point, num);
 	else if (status == SLEEP)
-		printf("%ld %d is sleeping\n", shared->time_stamp, num);
+		printf("%ld %d is sleeping\n", get_time() - shared->start_point, num);
 	else if (status == THINK)
-		printf("%ld %d is thinking\n", shared->time_stamp, num);
+		printf("%ld %d is thinking\n", get_time() - shared->start_point, num);
 	else if (status == DEAD)
-		printf("%ld %d died\n", shared->time_stamp, num);
+		printf("%ld %d died\n", get_time() - shared->start_point, num);
 	else if (status == FORK)
-		printf("%ld %d has taken a fork\n", shared->time_stamp, num);
-	else // 이건 지워라
-		printf("%ld %d has put a fork\n", shared->time_stamp, num);
-	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
+		printf("%ld %d has taken a fork\n", get_time() - shared->start_point, num);
+	pthread_mutex_unlock(&shared->mutexes[PRT_M]);
 	return (0);
 }
 
-void	split_usleep(t_philo *shared, useconds_t ms)
+long	get_time(void)
 {
-	long	standard_sec;
-	long	standard_usec;
-	long	passed_time;
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+void	split_usleep(useconds_t ms)
+{
+	long	standard;
 
 	ms *= 1000;
-	passed_time = 0;
-	standard_sec = shared->tv.tv_sec;
-	standard_usec = shared->tv.tv_usec;
-	while (passed_time <= ms)
+	standard = get_time();
+	while (get_time() - standard <= ms)
 	{
-		configure_time_stamp(shared);
-		passed_time = (shared->tv.tv_sec - standard_sec) * 1000000 \
-		+ shared->tv.tv_usec - standard_usec;
-		usleep(256);
+		usleep(128);
 	}
 }
 
@@ -91,8 +66,7 @@ int	generate_philo(t_philo *shared)
 
 	i = 0;
 	flag = 0;
-	gettimeofday(&shared->start_point, NULL);
-
+	shared->start_point = get_time();
 	while (i < shared->conditions->philo_number)
 	{
 		flag = pthread_create(&shared->philos[i], NULL, philosopher_do_something, shared);
@@ -135,6 +109,7 @@ void	free_structure(t_philo *shared)
 	num = shared->conditions->philo_number;
 	destroy_mutex_array(shared->fork_mutex, num);
 	destroy_mutex_array(shared->mutexes, TOTAL_MUTEX);
+	destroy_mutex_array(shared->last_eat_mutex, num);
 	free(shared->philos);
 	free(shared->last_eat);
 	free(shared->fork);

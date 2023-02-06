@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:29:37 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/06 16:52:03 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/06 21:38:50 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,14 @@ int dead_monitor(t_philo *shared, unsigned int i, int num, int die_time)
 {
 	int passed_time;
 
-	pthread_mutex_lock(&shared->mutexes[TIME_M]);
-	pthread_mutex_lock(&shared->mutexes[LASTEAT_M]);
-	passed_time = shared->time_stamp - shared->last_eat[i % num];
-	pthread_mutex_unlock(&shared->mutexes[LASTEAT_M]);
-	pthread_mutex_unlock(&shared->mutexes[TIME_M]);
-	if (passed_time > die_time)
+	pthread_mutex_lock(&shared->last_eat_mutex[i % num]);
+	passed_time = shared->last_eat[i % num];
+	pthread_mutex_unlock(&shared->last_eat_mutex[i % num]);
+
+	if (passed_time > die_time + get_time())
 	{
 		print_status(shared, i % num + 1, DEAD);
+		printf("passed: %d, die_time: %d", passed_time, die_time);
 		pthread_mutex_lock(&shared->mutexes[END_M]);
 		shared->end_flag = END;
 		pthread_mutex_unlock(&shared->mutexes[END_M]);
@@ -74,13 +74,12 @@ void	*thread_monitoring(void *philo_shared)
 	i = 0;
 	while (1)
 	{
-		configure_time_stamp(shared);
 		if (dead_monitor(shared, i, num, die_time) == END)
 			break ;
 		if (eatcnt_monitor(shared, num) == END)
 			break ;
 		i++;
-		usleep(100);
+		usleep(1000);
 	}
 	//printf("monitoring() 종료. 왜 쉬는지는 모르겠군요.\n");
 	return (NULL);
