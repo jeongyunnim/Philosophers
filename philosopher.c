@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/06 17:13:37 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/06 17:52:03 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,14 @@ void	configure_time_stamp(t_philo *shared)
 
 int	print_status(t_philo *shared, int num, char status)
 {
+	long	passed_sec;
+	long	passed_usec;
+
 	pthread_mutex_lock(&shared->mutexes[TIME_M]);
+	gettimeofday(&shared->tv, NULL);
+	passed_sec = shared->tv.tv_sec - shared->start_point.tv_sec;
+	passed_usec = shared->tv.tv_usec - shared->start_point.tv_usec;
+	shared->time_stamp = passed_sec * 1000 + passed_usec / 1000;
 	if (status == EAT)
 		printf("%ld %d is eating\n", shared->time_stamp, num);
 	else if (status == SLEEP)
@@ -93,8 +100,6 @@ int	generate_philo(t_philo *shared)
 			return (ERROR);
 		i++;
 	}
-
-	configure_time_stamp(shared);
 
 	pthread_mutex_lock(&shared->mutexes[WAIT_M]);
 	return (0);
