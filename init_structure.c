@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 17:46:51 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/03 17:47:31 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/06 14:56:09 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,23 @@ pthread_mutex_t	*init_mutex_array(int num)
 	return (mutex_arr);
 }
 
+void	destroy_mutex_array(pthread_mutex_t *mutex_arr, int num)
+{
+	int	i;
+
+	i = 0;
+	while (i < num)
+	{
+		pthread_mutex_destroy(&mutex_arr[i]);
+		i++;
+	}
+}
+
 void    init_shared_mem(t_philo *philo_shared, t_conditions *conditions) // calloc 사용 중
 {
 	int	num;
 
+	memset(philo_shared, 0, sizeof(*philo_shared));
 	num = conditions->philo_number;
 	philo_shared->conditions = conditions;
 	philo_shared->fork_mutex = init_mutex_array(num);
