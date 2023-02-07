@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/07 17:47:09 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 19:39:55 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void	split_usleep(useconds_t ms)
 	standard = get_time();
 	while (get_time() - standard <= ms)
 	{
-		usleep(256);
+		usleep(512);
 	}
 }
 
