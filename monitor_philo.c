@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:29:37 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/07 17:46:39 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 17:51:55 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	*thread_monitoring(void *philo_shared)
 			break ;
 		if (eatcnt_monitor(shared, num) == END)
 			break ;
-		usleep(1024);
+		usleep(256);
 		i++;
 	}
 	pthread_mutex_unlock(&shared->mutexes[PRT_M]);

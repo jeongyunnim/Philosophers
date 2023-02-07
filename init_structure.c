@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 17:46:51 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/06 21:37:23 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 18:01:52 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ void    init_shared_mem(t_philo *philo_shared, t_conditions *conditions) // call
 	philo_shared->conditions = conditions;
 	philo_shared->fork_mutex = init_mutex_array(num);
 	philo_shared->last_eat_mutex = init_mutex_array(num);
+	philo_shared->eat_cnt_mutex = init_mutex_array(num);
 	philo_shared->mutexes = init_mutex_array(TOTAL_MUTEX);
 	philo_shared->philos = (pthread_t *)calloc(sizeof(pthread_t), num);
 	philo_shared->last_eat = (long *)calloc(sizeof(long), num);

@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 15:50:43 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/07 17:29:01 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 18:01:51 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,17 +69,17 @@ int	eating_spaghetti(t_philo *shared, int num, int left_fork, int right_fork)
 		flag = pick_up_forks_odd(shared, num, left_fork, right_fork);
 	if (flag == END)
 		return (END);
-	pthread_mutex_lock(&shared->last_eat_mutex[num]);
+	pthread_mutex_lock(&shared->last_eat_mutex[num - 1]);
 	shared->last_eat[num - 1] = get_time() - shared->start_point;
-	pthread_mutex_unlock(&shared->last_eat_mutex[num]);
+	pthread_mutex_unlock(&shared->last_eat_mutex[num - 1]);
+	pthread_mutex_lock(&shared->mutexes[num - 1]);
+	shared->eat_cnt[num - 1] += 1;
+	pthread_mutex_unlock(&shared->mutexes[num - 1]);
 	if (print_status(shared, num, EAT) == END)
 	{
 		put_down_forks(shared, left_fork, right_fork);
 		return (END);
 	}
-	pthread_mutex_lock(&shared->mutexes[EATCNT_M]);
-	shared->eat_cnt[num - 1] += 1;
-	pthread_mutex_unlock(&shared->mutexes[EATCNT_M]);
 	split_usleep(shared->conditions->time_to_eat);
 	put_down_forks(shared, left_fork, right_fork);
 	return (0);
