@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/07 19:39:55 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 21:22:38 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,25 +59,24 @@ void	split_usleep(useconds_t ms)
 {
 	long	standard;
 
-	standard = get_time();
-	while (get_time() - standard <= ms)
+	standard = get_time() + ms;
+	while (1)
 	{
-		usleep(512);
+		if (get_time() > standard)
+			break ;
+		usleep(216);
 	}
 }
 
 int	generate_philo(t_philo *shared)
 {
 	int		i;
-	int		flag;
 
 	i = 0;
-	flag = 0;
 	shared->start_point = get_time();
 	while (i < shared->conditions->philo_number)
 	{
-		flag = pthread_create(&shared->philos[i], NULL, philosopher_do_something, shared);
-		if (flag != 0)
+		if (pthread_create(&shared->philos[i], NULL, philosopher_do_something, shared) != 0)
 			return (ERROR);
 		i++;
 	}

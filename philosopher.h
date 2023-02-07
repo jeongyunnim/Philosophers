@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/07 18:01:52 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 21:08:57 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,14 +55,12 @@ typedef struct  s_philo
 	pthread_mutex_t		*fork_mutex;
 	pthread_mutex_t		*mutexes;
 	pthread_mutex_t		*last_eat_mutex;
-	pthread_mutex_t		*eat_cnt_mutex;
 	int					*fork;
 	long				*last_eat;
 	int					*eat_cnt;
 	long				start_point;
 	int					index;
 	char				end_flag;
-	char				time_flag;
 }               t_philo;
 
 int				ft_atoi(const char *str);

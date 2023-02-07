@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:29:37 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/07 19:38:45 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 21:21:46 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	*thread_monitoring(void *philo_shared)
 	shared = (t_philo *)philo_shared;
 	die_time = shared->conditions->time_to_die;
 	num = shared->conditions->philo_number;
-	pthread_mutex_unlock(&shared->mutexes[WAIT_M]);
+
 	i = 0;
 	while (1)
 	{
