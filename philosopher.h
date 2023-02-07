@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/06 21:41:59 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 16:13:40 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 # define DEAD 5
 # define END 6
 
-# define TOTAL_MUTEX 7
+# define TOTAL_MUTEX 6
 
 # define INDEX_M 0
 # define WAIT_M 1

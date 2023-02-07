@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/06 21:44:56 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 17:47:09 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,11 @@ int	end_check(t_philo *shared)
 int	print_status(t_philo *shared, int num, char status)
 {
 	pthread_mutex_lock(&shared->mutexes[PRT_M]);
+	if (end_check(shared) == END)
+	{
+		pthread_mutex_unlock(&shared->mutexes[PRT_M]);
+		return (END);
+	}
 	if (status == EAT)
 		printf("%ld %d is eating\n", get_time() - shared->start_point, num);
 	else if (status == SLEEP)
@@ -32,7 +37,10 @@ int	print_status(t_philo *shared, int num, char status)
 	else if (status == THINK)
 		printf("%ld %d is thinking\n", get_time() - shared->start_point, num);
 	else if (status == DEAD)
+	{
 		printf("%ld %d died\n", get_time() - shared->start_point, num);
+		return (0);
+	}
 	else if (status == FORK)
 		printf("%ld %d has taken a fork\n", get_time() - shared->start_point, num);
 	pthread_mutex_unlock(&shared->mutexes[PRT_M]);
@@ -51,11 +59,10 @@ void	split_usleep(useconds_t ms)
 {
 	long	standard;
 
-	ms *= 1000;
 	standard = get_time();
 	while (get_time() - standard <= ms)
 	{
-		usleep(128);
+		usleep(256);
 	}
 }
 
@@ -74,19 +81,8 @@ int	generate_philo(t_philo *shared)
 			return (ERROR);
 		i++;
 	}
-
-	pthread_mutex_lock(&shared->mutexes[WAIT_M]);
 	return (0);
 }
-
-//int monitor(t_philo *shared)
-//{
-//	pthread_t	monitoring;
-
-//	pthread_create(&monitoring, NULL, thread_monitoring, shared);
-//	pthread_join(monitoring, NULL);
-//	return (0);
-//}
 
 void	wait_philos(t_philo *shared)
 {

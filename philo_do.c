@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:28:44 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/06 19:42:31 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 17:33:50 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,6 @@ void	*philosopher_do_something(void *philo_shared)
 
 	pthread_mutex_lock(&shared->mutexes[WAIT_M]);
 	pthread_mutex_unlock(&shared->mutexes[WAIT_M]);
-	if (num % 2 == 0)
-		usleep(50);
 	while (1)
 	{
 		if (eating_spaghetti(shared, num, left_fork, right_fork) != 0)

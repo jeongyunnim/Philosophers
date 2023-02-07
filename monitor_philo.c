@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:29:37 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/06 21:38:50 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/07 17:46:39 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,15 @@
 
 int dead_monitor(t_philo *shared, unsigned int i, int num, int die_time)
 {
-	int passed_time;
+	long last_eat;
 
 	pthread_mutex_lock(&shared->last_eat_mutex[i % num]);
-	passed_time = shared->last_eat[i % num];
+	last_eat = shared->last_eat[i % num];
 	pthread_mutex_unlock(&shared->last_eat_mutex[i % num]);
 
-	if (passed_time > die_time + get_time())
+	if (last_eat + die_time < get_time() - shared->start_point)
 	{
 		print_status(shared, i % num + 1, DEAD);
-		printf("passed: %d, die_time: %d", passed_time, die_time);
 		pthread_mutex_lock(&shared->mutexes[END_M]);
 		shared->end_flag = END;
 		pthread_mutex_unlock(&shared->mutexes[END_M]);
@@ -41,6 +40,7 @@ int	eatcnt_monitor(t_philo *shared, int num)
 	flag = 1;
 	if (shared->conditions->must_eat == 0)
 		return (0);
+	pthread_mutex_lock(&shared->mutexes[EATCNT_M]);
 	while (i < num)
 	{
 		if (shared->eat_cnt[i] < shared->conditions->must_eat)
@@ -50,6 +50,7 @@ int	eatcnt_monitor(t_philo *shared, int num)
 		}
 		i++;
 	}
+	pthread_mutex_unlock(&shared->mutexes[EATCNT_M]);
 	if (flag == 1)
 	{
 		pthread_mutex_lock(&shared->mutexes[END_M]);
@@ -78,9 +79,9 @@ void	*thread_monitoring(void *philo_shared)
 			break ;
 		if (eatcnt_monitor(shared, num) == END)
 			break ;
+		usleep(1024);
 		i++;
-		usleep(1000);
 	}
-	//printf("monitoring() 종료. 왜 쉬는지는 모르겠군요.\n");
+	pthread_mutex_unlock(&shared->mutexes[PRT_M]);
 	return (NULL);
 }
