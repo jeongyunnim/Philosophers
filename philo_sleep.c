@@ -12,15 +12,6 @@
 
 #include "philosopher.h"
 
-//int	sleeping(t_philo *shared, int num)
-//{
-//	if (end_check(shared) != 0)
-//		return (END);
-//	print_status(shared, num, SLEEP);
-//	split_usleep(shared->conditions->time_to_sleep);
-//	return (0);
-//}
-
 int	sleeping(t_philo *shared, int num)
 {
 	if (print_status(shared, num, SLEEP) == END)

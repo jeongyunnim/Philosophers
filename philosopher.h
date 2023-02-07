@@ -69,19 +69,25 @@ int				ft_isnum(char c);
 int				argument_num_check(char *argv[]);
 int				init_conditions(char *argv[], t_conditions *conditions);
 int				parse_arguments(char *argv[], t_conditions *conditions);
-long			get_time(void);
 
 
-void			split_usleep(useconds_t ms);
 
 int				end_check(t_philo *shared);
 int				print_status(t_philo *shared, int num, char status);
+
+/* time_utils */
+long			get_time(void);
+void			split_usleep(useconds_t ms);
 
 /* init_structure */
 pthread_mutex_t	*init_mutex_array(int num);
 void			init_shared_mem(t_philo *philo_shared, t_conditions *conditions);
 void			destroy_mutex_array(pthread_mutex_t *mutex_arr, int num);
+void			free_structure(t_philo *shared);
 
+/* thread_create_join */
+int				generate_philo(t_philo *shared);
+void			wait_philos(t_philo *shared);
 
 /* philo eat */
 

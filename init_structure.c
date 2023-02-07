@@ -14,8 +14,8 @@
 
 pthread_mutex_t	*init_mutex_array(int num)
 {
-	pthread_mutex_t *mutex_arr;
-	int	i;
+	pthread_mutex_t	*mutex_arr;
+	int				i;
 
 	i = 0;
 	mutex_arr = (pthread_mutex_t *)calloc(sizeof(pthread_mutex_t), num);
@@ -39,7 +39,7 @@ void	destroy_mutex_array(pthread_mutex_t *mutex_arr, int num)
 	}
 }
 
-void    init_shared_mem(t_philo *philo_shared, t_conditions *conditions) // calloc 사용 중
+void	init_shared_mem(t_philo *philo_shared, t_conditions *conditions)
 {
 	int	num;
 
@@ -53,4 +53,19 @@ void    init_shared_mem(t_philo *philo_shared, t_conditions *conditions) // call
 	philo_shared->last_eat = (long *)calloc(sizeof(long), num);
 	philo_shared->fork = (int *)calloc(sizeof(int), num);
 	philo_shared->eat_cnt = (int *)calloc(sizeof(int), num);
+}
+
+void	free_structure(t_philo *shared)
+{
+	int	num;
+
+	num = shared->conditions->philo_number;
+	destroy_mutex_array(shared->fork_mutex, num);
+	destroy_mutex_array(shared->mutexes, TOTAL_MUTEX);
+	destroy_mutex_array(shared->last_eat_mutex, num);
+	free(shared->philos);
+	free(shared->last_eat);
+	free(shared->fork);
+	free(shared->eat_cnt);
+	memset(shared, 0, sizeof(*shared));
 }

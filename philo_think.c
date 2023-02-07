@@ -12,14 +12,6 @@
 
 #include "philosopher.h"
 
-//int	thinking(t_philo *shared, int num)
-//{
-//	if (end_check(shared) != 0)
-//		return (END);
-//	print_status(shared, num, THINK);
-//	return (0);
-//}
-
 int	thinking(t_philo *shared, int num)
 {
 	return (print_status(shared, num, THINK));

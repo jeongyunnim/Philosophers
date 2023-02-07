@@ -1,7 +1,8 @@
 NAME		=	./philo
 
 CC			=	cc
-CFLAGS		=	-Wall -Wextra -Werror \
+CFLAGS		=	\
+# -Wall -Wextra -Werror \
 # -g3 -fsanitize=thread
 
 
@@ -16,6 +17,8 @@ SRC			=	./philosopher.c\
 				./philo_think.c\
 				./monitor_philo.c\
 				./philo_do.c\
+				./time_utils.c\
+				./thread_create_join.c\
 
 OBJ			=	$(SRC:%.c=%.o)
 

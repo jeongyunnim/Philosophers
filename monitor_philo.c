@@ -12,14 +12,13 @@
 
 #include "philosopher.h"
 
-int dead_monitor(t_philo *shared, unsigned int i, int num, int die_time)
+int	dead_monitor(t_philo *shared, unsigned int i, int num, int die_time)
 {
-	long last_eat;
+	long	last_eat;
 
 	pthread_mutex_lock(&shared->last_eat_mutex[i % num]);
 	last_eat = shared->last_eat[i % num];
 	pthread_mutex_unlock(&shared->last_eat_mutex[i % num]);
-
 	if (last_eat + die_time < get_time() - shared->start_point)
 	{
 		print_status(shared, i % num + 1, DEAD);
