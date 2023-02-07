@@ -26,6 +26,9 @@ void	*philosopher_do_something(void *philo_shared)
 	num = shared->index;
 	pthread_mutex_unlock(&shared->mutexes[INDEX_M]);
 
+	// pthread_mutex_lock(&shared->mutexes[WAIT_M]);
+	// pthread_mutex_unlock(&shared->mutexes[WAIT_M]);
+	
 	right_fork = num - 1;
 	if (num == 1)
 		left_fork = shared->conditions->philo_number - 1;

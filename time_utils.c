@@ -10,13 +10,13 @@ long	get_time(void)
 
 void	split_usleep(useconds_t ms)
 {
-	long	standard;
+	long long	standard;
 
 	standard = get_time() + ms;
 	while (1)
 	{
-		if (get_time() > standard)
+		if (get_time() >= standard)
 			break ;
-		usleep(216);
+		usleep(256);
 	}
 }

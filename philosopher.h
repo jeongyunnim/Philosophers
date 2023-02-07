@@ -54,7 +54,6 @@ typedef struct  s_philo
 	pthread_t			*philos;
 	pthread_mutex_t		*fork_mutex;
 	pthread_mutex_t		*mutexes;
-	pthread_mutex_t		*last_eat_mutex;
 	int					*fork;
 	long				*last_eat;
 	int					*eat_cnt;

@@ -37,6 +37,7 @@ int	main(int argc, char *argv[])
 	init_shared_mem(&philo_share, &conditions);
 	if (generate_philo(&philo_share) == ERROR)
 	{
+		// pthread_mutex_unlock(&philo_share.mutexes[WAIT_M]);
 		pthread_mutex_lock(&philo_share.mutexes[END_M]);
 		philo_share.end_flag = END;
 		pthread_mutex_unlock(&philo_share.mutexes[END_M]);

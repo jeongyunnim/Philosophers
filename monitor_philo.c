@@ -16,15 +16,12 @@ int	dead_monitor(t_philo *shared, unsigned int i, int num, int die_time)
 {
 	long	last_eat;
 
-	pthread_mutex_lock(&shared->last_eat_mutex[i % num]);
+	pthread_mutex_lock(&shared->mutexes[LASTEAT_M]);
 	last_eat = shared->last_eat[i % num];
-	pthread_mutex_unlock(&shared->last_eat_mutex[i % num]);
+	pthread_mutex_unlock(&shared->mutexes[LASTEAT_M]);
 	if (last_eat + die_time < get_time() - shared->start_point)
 	{
 		print_status(shared, i % num + 1, DEAD);
-		pthread_mutex_lock(&shared->mutexes[END_M]);
-		shared->end_flag = END;
-		pthread_mutex_unlock(&shared->mutexes[END_M]);
 		return (END);
 	}
 	return (0);
@@ -33,31 +30,19 @@ int	dead_monitor(t_philo *shared, unsigned int i, int num, int die_time)
 int	eatcnt_monitor(t_philo *shared, int num)
 {
 	int		i;
-	char	flag;
 
 	i = 0;
-	flag = 1;
 	if (shared->conditions->must_eat == 0)
 		return (0);
 	pthread_mutex_lock(&shared->mutexes[EATCNT_M]);
 	while (i < num)
 	{
 		if (shared->eat_cnt[i] < shared->conditions->must_eat)
-		{
-			flag = 0;
-			break ;
-		}
+			return (0);
 		i++;
 	}
 	pthread_mutex_unlock(&shared->mutexes[EATCNT_M]);
-	if (flag == 1)
-	{
-		pthread_mutex_lock(&shared->mutexes[END_M]);
-		shared->end_flag = END;
-		pthread_mutex_unlock(&shared->mutexes[END_M]);
-		return (END);
-	}
-	return (0);
+	return (END);
 }
 
 void	*thread_monitoring(void *philo_shared)
@@ -70,7 +55,7 @@ void	*thread_monitoring(void *philo_shared)
 	shared = (t_philo *)philo_shared;
 	die_time = shared->conditions->time_to_die;
 	num = shared->conditions->philo_number;
-
+	// pthread_mutex_unlock(&shared->mutexes[WAIT_M]);
 	i = 0;
 	while (1)
 	{
@@ -81,6 +66,9 @@ void	*thread_monitoring(void *philo_shared)
 		usleep(256);
 		i++;
 	}
+	pthread_mutex_lock(&shared->mutexes[END_M]);
+	shared->end_flag = END;
+	pthread_mutex_unlock(&shared->mutexes[END_M]);
 	pthread_mutex_unlock(&shared->mutexes[PRT_M]);
 	return (NULL);
 }

@@ -5,6 +5,7 @@ int	generate_philo(t_philo *shared)
 	int		i;
 
 	i = 0;
+	// pthread_mutex_lock(&shared->mutexes[WAIT_M]);
 	shared->start_point = get_time();
 	while (i < shared->conditions->philo_number)
 	{
