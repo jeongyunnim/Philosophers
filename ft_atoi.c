@@ -6,11 +6,11 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 21:09:55 by jeseo             #+#    #+#             */
-/*   Updated: 2023/01/21 18:53:42 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/08 13:21:35 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosopher.h"
+#include "./philosopher.h"
 
 static int	my_isspace(char c)
 {

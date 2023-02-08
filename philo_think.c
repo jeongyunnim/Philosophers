@@ -6,11 +6,11 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:27:23 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/07 16:58:46 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/08 13:22:10 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosopher.h"
+#include "./philosopher.h"
 
 int	thinking(t_philo *shared, int num)
 {

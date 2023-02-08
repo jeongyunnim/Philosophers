@@ -6,43 +6,40 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:29:37 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/07 21:21:46 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/08 14:17:34 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosopher.h"
+#include "./philosopher.h"
 
-int	dead_monitor(t_philo *shared, unsigned int i, int num, int die_time)
+int	dead_full_monitor(t_philo *shared, int num)
 {
-	long	last_eat;
-
-	pthread_mutex_lock(&shared->mutexes[LASTEAT_M]);
-	last_eat = shared->last_eat[i % num];
-	pthread_mutex_unlock(&shared->mutexes[LASTEAT_M]);
-	if (last_eat + die_time < get_time() - shared->start_point)
-	{
-		print_status(shared, i % num + 1, DEAD);
-		return (END);
-	}
-	return (0);
-}
-
-int	eatcnt_monitor(t_philo *shared, int num)
-{
-	int		i;
+	int	i;
+	int	minimum;
+	int	must_eat;
+	int	die_time;
 
 	i = 0;
-	if (shared->conditions->must_eat == 0)
-		return (0);
-	pthread_mutex_lock(&shared->mutexes[EATCNT_M]);
+	minimum = shared->eat_cnt[i];
+	must_eat = shared->conditions->must_eat;
+	die_time = shared->conditions->time_to_die;
+	pthread_mutex_lock(&shared->mutexes[MNT_M]);
 	while (i < num)
 	{
-		if (shared->eat_cnt[i] < shared->conditions->must_eat)
-			return (0);
+		if (must_eat != 0 && minimum > shared->eat_cnt[i])
+			minimum = shared->eat_cnt[i];
+		if (shared->last_eat[i % num] + die_time < get_time() - shared->start_point)
+		{
+			print_status(shared, i % num + 1, DEAD);
+			pthread_mutex_unlock(&shared->mutexes[MNT_M]);
+			return (END);
+		}
 		i++;
 	}
-	pthread_mutex_unlock(&shared->mutexes[EATCNT_M]);
-	return (END);
+	pthread_mutex_unlock(&shared->mutexes[MNT_M]);
+	if (must_eat != 0 && minimum >= must_eat)
+		return (END);
+	return (0);
 }
 
 void	*thread_monitoring(void *philo_shared)
@@ -55,15 +52,12 @@ void	*thread_monitoring(void *philo_shared)
 	shared = (t_philo *)philo_shared;
 	die_time = shared->conditions->time_to_die;
 	num = shared->conditions->philo_number;
-	// pthread_mutex_unlock(&shared->mutexes[WAIT_M]);
 	i = 0;
 	while (1)
 	{
-		if (dead_monitor(shared, i, num, die_time) == END)
+		if (dead_full_monitor(shared, num) == END)
 			break ;
-		if (eatcnt_monitor(shared, num) == END)
-			break ;
-		usleep(256);
+		usleep(128);
 		i++;
 	}
 	pthread_mutex_lock(&shared->mutexes[END_M]);

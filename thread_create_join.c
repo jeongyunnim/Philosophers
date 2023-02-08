@@ -1,15 +1,26 @@
-#include "philosopher.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   thread_create_join.c                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/02/08 13:21:12 by jeseo             #+#    #+#             */
+/*   Updated: 2023/02/08 13:23:52 by jeseo            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "./philosopher.h"
 
 int	generate_philo(t_philo *shared)
 {
 	int		i;
 
 	i = 0;
-	// pthread_mutex_lock(&shared->mutexes[WAIT_M]);
 	shared->start_point = get_time();
 	while (i < shared->conditions->philo_number)
 	{
-		if (pthread_create(&shared->philos[i], NULL, philosopher_do_something, shared) != 0)
+		if (pthread_create(&shared->philos[i], NULL, philo_do, shared) != 0)
 			return (ERROR);
 		i++;
 	}

@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/07 21:08:57 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/08 14:10:02 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,12 @@
 # define DEAD 5
 # define END 6
 
-# define TOTAL_MUTEX 6
+# define TOTAL_MUTEX 4
 
 # define INDEX_M 0
-# define WAIT_M 1
-# define LASTEAT_M 2
-# define PRT_M 3
-# define EATCNT_M 4
-# define END_M 5
+# define MNT_M 1
+# define PRT_M 2
+# define END_M 3
 
 
 typedef struct s_philo_conditions
@@ -95,7 +93,7 @@ void			put_down_forks(t_philo *shared, int left_fork, int right_fork);
 int				eating_spaghetti(t_philo *shared, int num, int left_fork, int right_fork);
 
 /* philo_do */
-void			*philosopher_do_something(void *philo_shared);
+void			*philo_do(void *philo_shared);
 
 /* philo_think */
 int				thinking(t_philo *shared, int num);
