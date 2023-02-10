@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/09 16:58:43 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/10 15:12:42 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,18 +23,24 @@
 
 # define ERROR -1
 
-# define EAT 1
-# define SLEEP 2
-# define THINK 3
-# define FORK 4
-# define DEAD 5
-# define END 6
+typedef enum e_stat
+{
+	EAT = 1,
+	SLEEP,
+	THINK,
+	FORK,
+	DEAD,
+	END
+}		t_stat;
 
-# define INDEX_M 0
-# define MNT_M 1
-# define PRT_M 2
-# define END_M 3
-# define TOTAL_MUTEX 4
+typedef enum e_mutexes
+{
+	INDEX_M,
+	MNT_M,
+	PRT_M,
+	END_M,
+	TOTAL_MUTEX
+}		t_mutexes;
 
 typedef struct s_philo_conditions
 {
