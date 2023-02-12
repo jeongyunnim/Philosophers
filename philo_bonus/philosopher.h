@@ -54,9 +54,6 @@ typedef struct s_philo_conditions
 typedef struct s_philo
 {
 	t_conditions		*conditions;
-	pthread_t			*philos;
-	pthread_mutex_t		*fork_mutex;
-	pthread_mutex_t		*mutexes;
 	int					*fork;
 	long				*last_eat;
 	int					*eat_cnt;
@@ -95,10 +92,8 @@ void			*thread_monitoring(void *philo_shared);
 int				generate_philo(t_philo *shared);
 
 /* philo eat */
-int				pick_up_forks_even(t_philo *shared, int num, int l, int r);
-int				pick_up_forks_odd(t_philo *shared, int num, int l, int r);
-void			put_down_forks(t_philo *shared, int left, int right);
-int				eating_spaghetti(t_philo *shared, int num, int left, int right);
+void			put_down_forks(t_philo *shared);
+int				eating_spaghetti(t_philo *shared, int num);
 
 /* philo_sleep */
 int				sleeping(t_philo *shared, int num);

@@ -12,52 +12,25 @@
 
 #include "./philosopher.h"
 
-int	pick_up_forks_even(t_philo *shared, int num, int left_fork, int right_fork)
+void	pick_up_forks(t_philo *shared, int num)
 {
-	pthread_mutex_lock(&shared->fork_mutex[right_fork]);
+	sem_wait(&shared->semaphore);
 	print_status(shared, num, FORK);
-	pthread_mutex_lock(&shared->fork_mutex[left_fork]);
-	shared->fork[right_fork] = 1;
-	shared->fork[left_fork] = 1;
+	sem_wait(&shared->semaphore);
 	print_status(shared, num, FORK);
-	return (0);
 }
 
-int	pick_up_forks_odd(t_philo *shared, int num, int left_fork, int right_fork)
+void	put_down_forks(t_philo *shared)
 {
-	pthread_mutex_lock(&shared->fork_mutex[left_fork]);
-	print_status(shared, num, FORK);
-	pthread_mutex_lock(&shared->fork_mutex[right_fork]);
-	shared->fork[right_fork] = 1;
-	shared->fork[left_fork] = 1;
-	print_status(shared, num, FORK);
-	return (0);
+	sem_post(&shared->semaphore);
+	sem_post(&shared->semaphore);
 }
 
-void	put_down_forks(t_philo *shared, int left_fork, int right_fork)
+int	eating_spaghetti(t_philo *shared, int num)
 {
-	shared->fork[left_fork] = 0;
-	shared->fork[right_fork] = 0;
-	pthread_mutex_unlock(&shared->fork_mutex[left_fork]);
-	pthread_mutex_unlock(&shared->fork_mutex[right_fork]);
-}
-
-int	eating_spaghetti(t_philo *shared, int num, int left_fork, int right_fork)
-{
-	if (num % 2 == 1)
-		pick_up_forks_even(shared, num, left_fork, right_fork);
-	else
-		pick_up_forks_odd(shared, num, left_fork, right_fork);
+	pick_up_fork(shared, num);
 	if (print_status(shared, num, EAT) == END)
-	{
-		put_down_forks(shared, left_fork, right_fork);
-		return (END);
-	}
-	pthread_mutex_lock(&shared->mutexes[MNT_M]);
-	shared->last_eat[num - 1] = get_time() - shared->start;
-	shared->eat_cnt[num - 1] += 1;
-	pthread_mutex_unlock(&shared->mutexes[MNT_M]);
 	split_usleep(shared->conditions->time_to_eat);
-	put_down_forks(shared, left_fork, right_fork);
+	put_down_forks(shared);
 	return (0);
 }

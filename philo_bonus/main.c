@@ -16,6 +16,7 @@ int	main(int argc, char *argv[])
 {
 	t_philo			philo_share;
 	t_conditions	conditions;
+	pid_t			pid;
 
 	if (argc != 5 && argc != 6)
 	{
@@ -25,9 +26,16 @@ int	main(int argc, char *argv[])
 	if (parse_arguments(argv, &conditions) != 0)
 		return (ERROR);
 	init_shared_mem(&philo_share, &conditions);
-	if (generate_philo(&philo_share) == ERROR)
+	pid = generate_philo(&philo_share);
+	if (pid == -1)
 		return (return_error(&philo_share));
-	// thread_monitoring(&philo_share);
-	// free_structure(&philo_share);
+	if (pid != 0)
+		philo_wait(philo_share);
+	else
+	{
+		philo_do(&philo_share);
+		philo_monitoring(&philo_share);
+	}
+	free_structure(&philo_share);
 	return (0);
 }
