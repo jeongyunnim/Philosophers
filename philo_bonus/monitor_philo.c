@@ -44,20 +44,15 @@ int	dead_full_monitor(t_philo *shared, int num)
 void	*thread_monitoring(void *philo_shared)
 {
 	t_philo			*shared;
-	unsigned int	i;
-	int				die_time;
 	int				num;
 
 	shared = (t_philo *)philo_shared;
-	die_time = shared->conditions->time_to_die;
 	num = shared->conditions->philo_number;
-	i = 0;
 	while (1)
 	{
 		if (dead_full_monitor(shared, num) == END)
 			break ;
 		usleep(128);
-		i++;
 	}
 	pthread_mutex_lock(&shared->mutexes[END_M]);
 	shared->end_flag = END;

@@ -14,29 +14,38 @@
 
 int	generate_philo(t_philo *shared)
 {
+	pid_t	*pid_arr;
+	pid_t	child_pid;
+	int		status;
 	int		i;
 
 	i = 0;
 	shared->start = get_time();
+	pid_arr = (pid_t *)ft_calloc(sizeof(pid_t), shared->conditions->philo_number);
 	while (i < shared->conditions->philo_number)
 	{
-		if (pthread_create(&shared->philos[i], NULL, philo_do, shared) != 0)
+		pid_arr[i] = fork();
+		if (pid_arr[i] == 0)
+		{
+			printf("Child process %d\n", i + 1);
+			break ;
+		}
+		else if (pid_arr[i] < 0)
+		{
+			perror("Failed to fork\n");
 			return (ERROR);
+		}
 		i++;
+	}
+	i = 0;
+	if (pid_arr[i] > 0)
+	{
+		while (i < shared->conditions->philo_number)
+		{
+			child_pid = waitpid(pid_arr[i], &status, 0);
+			printf("parent pid: %d child process %d completed\n", pid_arr[i], child_pid);
+			i++; 
+		}
 	}
 	return (0);
-}
-
-void	wait_philos(t_philo *shared)
-{
-	int	num;
-	int	i;
-
-	num = shared->conditions->philo_number;
-	i = 0;
-	while (i < num)
-	{
-		pthread_join(shared->philos[i], NULL);
-		i++;
-	}
 }

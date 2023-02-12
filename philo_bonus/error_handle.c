@@ -17,7 +17,7 @@ int	return_error(t_philo *shared)
 	pthread_mutex_lock(&shared->mutexes[END_M]);
 	shared->end_flag = END;
 	pthread_mutex_unlock(&shared->mutexes[END_M]);
-	wait_philos(shared);
+	// wait_philos(shared);
 	free_structure(shared);
 	write(2, "Error\nPthread_create error\n", 27);
 	return (ERROR);

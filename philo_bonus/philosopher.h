@@ -91,9 +91,8 @@ void			free_structure(t_philo *shared);
 /* monitor_philo */
 void			*thread_monitoring(void *philo_shared);
 
-/* thread_create_join */
+/* philo_create_join */
 int				generate_philo(t_philo *shared);
-void			wait_philos(t_philo *shared);
 
 /* philo eat */
 int				pick_up_forks_even(t_philo *shared, int num, int l, int r);

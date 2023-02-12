@@ -19,7 +19,7 @@ SRC			=	./main.c\
 				./monitor_philo.c\
 				./philo_do.c\
 				./time_utils.c\
-				./thread_create_join.c\
+				./philo_create.c\
 				./error_handle.c\
 
 OBJ			=	$(SRC:%.c=%.o)

@@ -27,8 +27,7 @@ int	main(int argc, char *argv[])
 	init_shared_mem(&philo_share, &conditions);
 	if (generate_philo(&philo_share) == ERROR)
 		return (return_error(&philo_share));
-	thread_monitoring(&philo_share);
-	wait_philos(&philo_share);
-	free_structure(&philo_share);
+	// thread_monitoring(&philo_share);
+	// free_structure(&philo_share);
 	return (0);
 }
