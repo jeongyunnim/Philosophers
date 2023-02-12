@@ -54,6 +54,7 @@ typedef struct s_philo_conditions
 typedef struct s_philo
 {
 	t_conditions		*conditions;
+	sem_t				semaphore;
 	int					*fork;
 	long				*last_eat;
 	int					*eat_cnt;
