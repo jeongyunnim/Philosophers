@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/10 15:12:42 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/13 17:34:40 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,10 @@ typedef struct s_philo
 {
 	t_conditions		*conditions;
 	sem_t				semaphore;
-	int					*fork;
-	long				*last_eat;
-	int					*eat_cnt;
+	long				last_eat;
 	long				start;
 	int					index;
+	int					eat_cnt;
 	char				end_flag;
 }				t_philo;
 
