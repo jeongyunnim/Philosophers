@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   thread_create_join.c                               :+:      :+:    :+:   */
+/*   philo_create.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 13:21:12 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/08 15:44:07 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/14 20:18:11 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,16 +17,15 @@ int	generate_philo(t_philo *shared)
 	pid_t	pid;
 	pid_t	child_pid;
 	int		status;
-	int		i;
 
-	i = 0;
 	shared->start = get_time();
-	while (i < shared->conditions->philo_number)
+	pid = -1;
+	while (shared->index < shared->conditions->philo_number)
 	{
 		pid = fork();
 		if (pid == 0)
 		{
-			printf("Child process %d\n", i + 1);
+			printf("Child process %d\n", getpid());
 			break ;
 		}
 		else if (pid < 0)
@@ -34,7 +33,7 @@ int	generate_philo(t_philo *shared)
 			perror("Failed to fork\n");
 			return (ERROR);
 		}
-		i++;
+		shared->index++;
 	}
 	return (pid);
 }

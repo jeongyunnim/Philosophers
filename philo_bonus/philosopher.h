@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/13 17:34:40 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/14 16:26:07 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <semaphore.h>
 
 # define ERROR -1
+# define SEM_NAME "/forks"
 
 typedef enum e_stat
 {
@@ -54,7 +55,8 @@ typedef struct s_philo_conditions
 typedef struct s_philo
 {
 	t_conditions		*conditions;
-	sem_t				semaphore;
+	sem_t				*forks;
+	sem_t				*evnet_mutex;
 	long				last_eat;
 	long				start;
 	int					index;
