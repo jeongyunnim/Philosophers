@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/15 16:07:38 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/15 19:39:51 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,16 @@ int	main(int argc, char *argv[])
 	if (pid == -1)
 		return (return_error(&philo_share));	
 	else if (pid != 0)
+	{
+		printf("메인 프로세스\n");
 		philo_wait(&philo_share);
+	}
 	else
 	{
+		generate_thread(&philo_share);
 		philo_do(&philo_share);
-		philo_monitoring(&philo_share);
 		free_structure(&philo_share);
+		printf("자식 종료");
 		return (0);
 	}
 	free_structure(&philo_share);

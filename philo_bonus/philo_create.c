@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/08 13:21:12 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/15 16:07:06 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/15 19:33:18 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,9 @@ int	generate_philo(t_philo *shared)
 		shared->index++;
 		pid = fork();
 		if (pid == 0)
+		{
 			break ;
+		}
 		else if (pid < 0)
 		{
 			write(2, "Error\nfork() error\n", 19);

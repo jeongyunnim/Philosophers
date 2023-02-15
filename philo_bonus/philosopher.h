@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/15 15:42:12 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/15 19:38:39 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,10 +86,12 @@ void			free_structure(t_philo *shared);
 
 /* monitor_philo */
 void			*philo_monitoring(void *philo_shared);
+void			generate_thread(t_philo *shared);
 
 /* philo_create */
 int				generate_philo(t_philo *shared);
 void			philo_wait(t_philo *shared);
+
 /* philo eat */
 void			put_down_forks(t_philo *shared);
 int				eating_spaghetti(t_philo *shared, int num);

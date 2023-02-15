@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:28:44 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/15 15:47:20 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/15 19:42:55 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ void	*philo_do(t_philo *shared)
 		if (thinking(shared, shared->index) != 0)
 			break ;
 	}
+	printf("자식 do 종료\n");
+
 	return (NULL);
 }
 
