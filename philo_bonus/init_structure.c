@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 17:46:51 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/15 19:31:56 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/15 20:00:13 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,16 @@ int	init_shared_mem(t_philo *shared, t_conditions *conditions)
 	int	num;
 	//int	status;
 
+	sem_unlink(SEM_NAME);
 	memset(shared, 0, sizeof(*shared));
 	num = conditions->philo_number;
 	shared->conditions = conditions;
-	shared->forks = sem_open(SEM_NAME, 0, S_IRUSR | S_IWUSR, num);
-	if (shared->forks == SEM_FAILED || shared->forks == NULL)
+	shared->forks = sem_open(SEM_NAME, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR, num);
+	if (shared->forks == SEM_FAILED) 
 	{
    		perror("sem_open");
    		exit(EXIT_FAILURE);
 	}
-	printf("???");
 	//status = sem_wait(shared->forks);
 	//if (status == -1)
 	//{
