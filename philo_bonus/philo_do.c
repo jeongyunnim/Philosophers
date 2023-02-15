@@ -23,8 +23,6 @@ void	*philo_do(t_philo *shared)
 		if (thinking(shared, shared->index) != 0)
 			break ;
 	}
-	printf("자식 do 종료\n");
-
 	return (NULL);
 }
 

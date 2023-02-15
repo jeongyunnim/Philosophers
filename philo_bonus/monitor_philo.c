@@ -35,7 +35,7 @@ void	*philo_monitoring(void *philo_shared)
 	int				num;
 
 	shared = (t_philo *)philo_shared;
-	num = shared->conditions->philo_number;
+	num = shared->index;
 	while (1)
 	{
 		if (dead_full_monitor(shared, num) == END)
@@ -43,7 +43,6 @@ void	*philo_monitoring(void *philo_shared)
 		usleep(128);
 	}
 	shared->end_flag = END;
-	printf("자식놈 스레드 종료\n");
 	return (NULL);
 }
 

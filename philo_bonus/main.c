@@ -31,7 +31,6 @@ int	main(int argc, char *argv[])
 		return (return_error(&philo_share));	
 	else if (pid != 0)
 	{
-		printf("메인 프로세스\n");
 		philo_wait(&philo_share);
 	}
 	else
@@ -39,7 +38,6 @@ int	main(int argc, char *argv[])
 		generate_thread(&philo_share);
 		philo_do(&philo_share);
 		free_structure(&philo_share);
-		printf("자식 종료");
 		return (0);
 	}
 	free_structure(&philo_share);

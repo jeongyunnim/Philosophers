@@ -16,7 +16,6 @@ void	pick_up_forks(t_philo *shared, int num)
 {
 	int	status;
 
-	printf("%d 자식 대기 중\n", num);
 	status = sem_wait(shared->forks);
 	if (status == -1)
 	{
@@ -43,7 +42,7 @@ int	eating_spaghetti(t_philo *shared, int num)
 		return (END);
 	}
 	shared->eat_cnt += 1;
-	shared->last_eat = get_time();
+	shared->last_eat = get_time() - shared->start;
 	split_usleep(shared->conditions->time_to_eat);
 	put_down_forks(shared);
 	return (0);

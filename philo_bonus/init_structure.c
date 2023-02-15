@@ -40,12 +40,9 @@ int	init_shared_mem(t_philo *shared, t_conditions *conditions)
 
 void	free_structure(t_philo *shared)
 {
-	int	num;
-
-	num = shared->conditions->philo_number;
 	sem_close(shared->forks);
 	sem_close(shared->evnet_mutex);
-	printf("unlink 할께\n");
+	// printf("unlink 할께\n");
 	sem_unlink("/mysem");
 	memset(shared, 0, sizeof(*shared));
 }
