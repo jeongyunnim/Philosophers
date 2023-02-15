@@ -24,12 +24,19 @@ void	pick_up_forks(t_philo *shared, int num)
 	}
 	print_status(shared, num, FORK);
 	sem_wait(shared->forks);
+	if (status == -1)
+	{
+		printf("status: %d\n", status);
+		perror("뭔데");
+	}
 	print_status(shared, num, FORK);
 }
 
 void	put_down_forks(t_philo *shared)
 {
+	printf("%d put\n", shared->index);
 	sem_post(shared->forks);
+	printf("%d put\n", shared->index);
 	sem_post(shared->forks);
 }
 
