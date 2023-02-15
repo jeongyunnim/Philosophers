@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 17:46:51 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/14 21:09:16 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/15 16:42:52 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,7 @@ void	free_structure(t_philo *shared)
 	int	num;
 
 	num = shared->conditions->philo_number;
+	sem_close(shared->forks);
+	sem_close(shared->evnet_mutex);
 	memset(shared, 0, sizeof(*shared));
 }

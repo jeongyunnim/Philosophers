@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/14 16:26:07 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/15 15:42:12 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,26 +73,23 @@ int				init_conditions(char *argv[], t_conditions *conditions);
 int				parse_arguments(char *argv[], t_conditions *conditions);
 
 /* philo_do */
-void			*philo_do(void *philo_shared);
+void			*philo_do(t_philo *shared);
 int				print_status(t_philo *shared, int num, char status);
-int				end_check(t_philo *shared);
 
 /* time_utils */
 long			get_time(void);
 void			split_usleep(useconds_t ms);
 
 /* init_structure */
-pthread_mutex_t	*init_mutex_array(int num);
 int				init_shared_mem(t_philo *philo_shared, t_conditions *cndtion);
-void			destroy_mutex_array(pthread_mutex_t *mutex_arr, int num);
 void			free_structure(t_philo *shared);
 
 /* monitor_philo */
-void			*thread_monitoring(void *philo_shared);
+void			*philo_monitoring(void *philo_shared);
 
-/* philo_create_join */
+/* philo_create */
 int				generate_philo(t_philo *shared);
-
+void			philo_wait(t_philo *shared);
 /* philo eat */
 void			put_down_forks(t_philo *shared);
 int				eating_spaghetti(t_philo *shared, int num);

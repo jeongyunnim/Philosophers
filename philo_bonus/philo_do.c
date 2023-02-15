@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:28:44 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/14 16:02:20 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/15 15:47:20 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int	print_status(t_philo *shared, int num, char status)
 	long	time_stamp;
 
 	time_stamp = get_time() - shared->start;
-	if (end_check(shared) == END)
+	if (shared->end_flag == END)
 		return (END);
 	if (status == EAT)
 		printf("%ld %d is eating\n", time_stamp, num);
