@@ -31,7 +31,7 @@ int	main(int argc, char *argv[])
 		return (return_error(&philo_share));	
 	else if (pid != 0)
 	{
-		philo_wait(&philo_share);
+		philo_wait();
 	}
 	else
 	{

@@ -20,9 +20,11 @@
 # include <string.h>
 # include <sys/time.h>
 # include <semaphore.h>
+# include <signal.h>
 
 # define ERROR -1
 # define SEM_NAME "/forks"
+# define MUT_NAME "/mutex"
 
 typedef enum e_stat
 {
@@ -56,7 +58,7 @@ typedef struct s_philo
 {
 	t_conditions		*conditions;
 	sem_t				*forks;
-	sem_t				*evnet_mutex;
+	sem_t				*event_mutex;
 	long				last_eat;
 	long				start;
 	int					index;
@@ -90,7 +92,7 @@ void			generate_thread(t_philo *shared);
 
 /* philo_create */
 int				generate_philo(t_philo *shared);
-void			philo_wait(t_philo *shared);
+void			philo_wait(void);
 
 /* philo eat */
 void			put_down_forks(t_philo *shared);

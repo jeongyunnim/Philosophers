@@ -35,17 +35,30 @@ int	generate_philo(t_philo *shared)
 	return (pid);
 }
 
-void	philo_wait(t_philo *shared)
+void	philo_wait(void)
 {
 	int	status;
-	int	num;
-	int	i;
+	// int	num;
 
-	num = shared->conditions->philo_number;
-	i = 0;
-	while(i < num)
-	{
-		waitpid(-1, &status, 0);
-		i++;
-	}
+	// num = shared->conditions->philo_number;
+	waitpid(-1, &status, 0);
+	kill(0, SIGKILL);
+	// while(i < num)
+	// {
+	// 	i++;
+	// }
 }
+
+// void	philo_wait(t_philo *shared)
+// {
+// 	int	status;
+// 	// int	num;
+
+// 	// num = shared->conditions->philo_number;
+// 	waitpid(-1, &status, 0);
+// 	kill(0, SIGKILL);
+// 	// while(i < num)
+// 	// {
+// 	// 	i++;
+// 	// }
+// }

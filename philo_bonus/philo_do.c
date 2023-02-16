@@ -30,6 +30,7 @@ int	print_status(t_philo *shared, int num, char status)
 {
 	long	time_stamp;
 
+	sem_wait(shared->event_mutex);
 	time_stamp = get_time() - shared->start;
 	if (shared->end_flag == END)
 		return (END);
@@ -43,5 +44,6 @@ int	print_status(t_philo *shared, int num, char status)
 		printf("%ld %d died\n", time_stamp, num);
 	else if (status == FORK)
 		printf("%ld %d has taken a fork\n", time_stamp, num);
+	sem_post(shared->event_mutex);
 	return (0);
 }
