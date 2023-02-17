@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:28:44 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/15 19:42:55 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/17 20:49:50 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ int	print_status(t_philo *shared, int num, char status)
 {
 	long	time_stamp;
 
-	sem_wait(shared->event_mutex);
+	if (sem_wait(shared->print_mutex) == -1)
+		perror("print 실패");
 	time_stamp = get_time() - shared->start;
 	if (shared->end_flag == END)
 		return (END);
@@ -44,6 +45,6 @@ int	print_status(t_philo *shared, int num, char status)
 		printf("%ld %d died\n", time_stamp, num);
 	else if (status == FORK)
 		printf("%ld %d has taken a fork\n", time_stamp, num);
-	sem_post(shared->event_mutex);
+	sem_post(shared->print_mutex);
 	return (0);
 }

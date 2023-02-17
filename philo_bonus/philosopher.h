@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:52:27 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/17 15:57:31 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/17 20:53:22 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@
 
 # define ERROR -1
 # define SEM_NAME "/forks"
-# define MUT_NAME "/mutex"
+# define EVT_NAME "/event"
+# define PRT_NAME "/print"
 
 typedef enum e_stat
 {
@@ -59,6 +60,7 @@ typedef struct s_philo
 	t_conditions		*conditions;
 	sem_t				*forks;
 	sem_t				*event_mutex;
+	sem_t				*print_mutex;
 	long				last_eat;
 	long				start;
 	int					index;
@@ -91,8 +93,8 @@ void			*philo_monitoring(void *philo_shared);
 void			generate_thread(t_philo *shared);
 
 /* philo_create */
-void			generate_philo(t_philo *shared);
-void			philo_wait(void);
+pid_t			*generate_philo(t_philo *shared);
+void			philo_wait(t_philo *shared, pid_t *childs);
 
 /* philo eat */
 void			put_down_forks(t_philo *shared);

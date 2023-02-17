@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/05 15:50:43 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/15 19:52:58 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/17 20:40:09 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,9 @@ void	pick_up_forks(t_philo *shared, int num)
 
 void	put_down_forks(t_philo *shared)
 {
-	printf("%d put\n", shared->index);
+	//printf("%d put\n", shared->index);
+	//printf("%d put\n", shared->index);
 	sem_post(shared->forks);
-	printf("%d put\n", shared->index);
 	sem_post(shared->forks);
 }
 
@@ -48,8 +48,10 @@ int	eating_spaghetti(t_philo *shared, int num)
 		put_down_forks(shared);
 		return (END);
 	}
+	sem_wait(shared->event_mutex);
 	shared->eat_cnt += 1;
 	shared->last_eat = get_time() - shared->start;
+	sem_post(shared->event_mutex);
 	split_usleep(shared->conditions->time_to_eat);
 	put_down_forks(shared);
 	return (0);

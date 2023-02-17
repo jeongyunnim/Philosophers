@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/15 19:39:51 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/17 20:27:25 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	main(int argc, char *argv[])
 {
 	t_philo			philo_share;
 	t_conditions	conditions;
-	pid_t			pid;
+	pid_t			*pid;
 
 	if (argc != 5 && argc != 6)
 	{
@@ -27,11 +27,11 @@ int	main(int argc, char *argv[])
 		return (ERROR);
 	init_shared_mem(&philo_share, &conditions);
 	pid = generate_philo(&philo_share);
-	if (pid == -1)
-		return (return_error(&philo_share));	
-	else if (pid != 0)
+	if (pid[philo_share.index] == -1)
+		return (return_error(&philo_share));
+	else if (pid[philo_share.index] != 0)
 	{
-		philo_wait();
+		philo_wait(&philo_share, pid);
 	}
 	else
 	{
