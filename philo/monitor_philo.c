@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:29:37 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/08 16:08:51 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/18 23:11:34 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@ int	dead_full_monitor(t_philo *shared, int num)
 	int	die_time;
 
 	i = -1;
-	minimum = shared->eat_cnt[0];
 	must_eat = shared->conditions->must_eat;
 	die_time = shared->conditions->time_to_die;
 	pthread_mutex_lock(&shared->mutexes[MNT_M]);
+	minimum = shared->eat_cnt[0];
 	while (++i < num)
 	{
 		if (must_eat != 0 && minimum > shared->eat_cnt[i])
@@ -56,7 +56,7 @@ void	*thread_monitoring(void *philo_shared)
 	{
 		if (dead_full_monitor(shared, num) == END)
 			break ;
-		usleep(128);
+		usleep(256);
 		i++;
 	}
 	pthread_mutex_lock(&shared->mutexes[END_M]);
