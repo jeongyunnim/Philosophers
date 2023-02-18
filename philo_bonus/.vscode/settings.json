@@ -1,7 +1,0 @@
-{
-	"files.associations": {
-		"ostream": "c",
-		"philosopher.h": "c",
-		"locale": "c"
-	}
-}
