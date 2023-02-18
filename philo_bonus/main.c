@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/17 20:27:25 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/18 17:29:21 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,17 @@ int	main(int argc, char *argv[])
 	if (parse_arguments(argv, &conditions) != 0)
 		return (ERROR);
 	init_shared_mem(&philo_share, &conditions);
+	memset(&pid, 0, sizeof(pid));
 	pid = generate_philo(&philo_share);
 	if (pid[philo_share.index] == -1)
 		return (return_error(&philo_share));
-	else if (pid[philo_share.index] != 0)
+	else if (philo_share.index == conditions.philo_number)
 	{
 		philo_wait(&philo_share, pid);
+		printf("나왔는지?\n");
+		free(pid);
+		free_structure(&philo_share);
+		return (0);
 	}
 	else
 	{
@@ -40,6 +45,4 @@ int	main(int argc, char *argv[])
 		free_structure(&philo_share);
 		return (0);
 	}
-	free_structure(&philo_share);
-	return (0);
 }
