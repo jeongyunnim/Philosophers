@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 14:29:37 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/18 17:08:28 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/18 22:47:25 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,11 @@ int	dead_full_monitor(t_philo *shared, int num)
 	if (shared->last_eat + die_time < get_time() - shared->start)
 	{
 		print_status(shared, num, DEAD);
-		shared->end_flag = END;
 		sem_post(shared->event_mutex);
 		return (END);
 	}
 	if (must_eat != 0 && shared->eat_cnt >= must_eat)
 	{
-		shared->end_flag = END;
 		sem_post(shared->event_mutex);
 		return (END);
 	}
@@ -47,10 +45,9 @@ void	*philo_monitoring(void *philo_shared)
 	while (1)
 	{
 		if (dead_full_monitor(shared, num) == END)
-			break ;
+			exit(EXIT_SUCCESS);
 		usleep(128);
 	}
-	return (NULL);
 }
 
 void	generate_thread(t_philo *shared)

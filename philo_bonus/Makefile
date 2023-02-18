@@ -17,7 +17,8 @@ SRC			=	./main.c\
 				./philo_sleep.c\
 				./philo_think.c\
 				./monitor_philo.c\
-				./philo_do.c\
+				./child_process_do.c\
+				./parent_process_do.c\
 				./time_utils.c\
 				./philo_create.c\
 				./error_handle.c\

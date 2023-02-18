@@ -6,7 +6,7 @@
 /*   By: jeseo <jeseo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 20:49:33 by jeseo             #+#    #+#             */
-/*   Updated: 2023/02/18 17:29:21 by jeseo            ###   ########.fr       */
+/*   Updated: 2023/02/18 22:30:38 by jeseo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,24 +25,14 @@ int	main(int argc, char *argv[])
 	}
 	if (parse_arguments(argv, &conditions) != 0)
 		return (ERROR);
-	init_shared_mem(&philo_share, &conditions);
-	memset(&pid, 0, sizeof(pid));
+	if (init_shared_mem(&philo_share, &conditions) == ERROR)
+		return (init_error());
 	pid = generate_philo(&philo_share);
-	if (pid[philo_share.index] == -1)
-		return (return_error(&philo_share));
+	if (pid == NULL)
+		return (fork_error(&philo_share, pid));
 	else if (philo_share.index == conditions.philo_number)
-	{
-		philo_wait(&philo_share, pid);
-		printf("나왔는지?\n");
-		free(pid);
-		free_structure(&philo_share);
-		return (0);
-	}
+		parent_process_do(&philo_share, pid);
 	else
-	{
-		generate_thread(&philo_share);
-		philo_do(&philo_share);
-		free_structure(&philo_share);
-		return (0);
-	}
+		child_process_do(&philo_share);
+	return (0);
 }
